@@ -1,13 +1,14 @@
 from fastapi import FastAPI
 
+from configs.database import Base, engine
+
+from models import *
+
+from routers import user, authentication
+
 app = FastAPI()
 
+Base.metadata.create_all(bind=engine)
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+app.include_router(authentication.router)
+app.include_router(user.router)
