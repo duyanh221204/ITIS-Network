@@ -12,4 +12,4 @@ class UserRegisterSchema(UserBaseSchema):
 
 class UserProfileSchema(UserBaseSchema):
     followers_number: int
-    following_number: int
+    followings_number: int

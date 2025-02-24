@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 
 from passlib.context import CryptContext
 
@@ -33,19 +33,13 @@ def create_access_token(data: dict, expired_delta: timedelta) -> str:
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-async def get_current_user(token: str = Depends(oauth2_bearer)) -> dict | HTTPException:
+async def get_current_user(token: str = Depends(oauth2_bearer)) -> dict | None:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         user_id: int = payload.get("id")
         if user_id is None or username is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Unable to validate credentials"
-            )
+            return None
         return {"id": user_id, "username": username}
     except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Unable to validate credentials"
-        )
+        return None

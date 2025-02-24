@@ -1,9 +1,10 @@
-from configs.authentication import hash_password
+from configs.authentication import hash_password, verify_password
 
 from models.user import User
 
 from schemas.user import UserRegisterSchema
 from schemas.base_response import BaseResponse
+from schemas.authentication import PasswordUpdateSchema
 
 from exceptions import raise_error
 
@@ -27,10 +28,20 @@ class UserServices:
             return raise_error(1002)
         user_regis = User(
             username=data.username,
-            hashed_password=hash_password(data.password),
-            email=data.email
+            email=data.email,
+            hashed_password=hash_password(data.password)
         )
         db.add(user_regis)
         db.commit()
         db.refresh(user_regis)
         return BaseResponse(message="Register successfully")
+
+    def update_password(self, data: PasswordUpdateSchema, db: Session, user: dict) -> BaseResponse:
+        user_db = db.query(User).filter(User.id == user["id"]).first()
+        if not verify_password(data.current_password, user_db.hashed_password):
+            return raise_error(1004)
+        user_db.hashed_password = hash_password(data.new_password)
+        db.add(user_db)
+        db.commit()
+        db.refresh(user_db)
+        return BaseResponse(message="Password updated")
