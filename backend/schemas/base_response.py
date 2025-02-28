@@ -4,5 +4,5 @@ from typing import Any
 
 class BaseResponse(BaseModel):
     status: str = "ok"
-    message: str
+    message: str = ""
     data: Any = None

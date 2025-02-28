@@ -6,8 +6,12 @@ ERROR_CODES = {
     1001: "Username existed",
     1002: "Email existed",
     1003: "Login failed",
-    1004: "Incorrect current password",
-    1005: "Error on password update"
+    1004: "Incorrect credentials",
+    1005: "Incorrect current password",
+    1006: "Error updating password",
+    1007: "Unable to get user's info",
+
+    2000: "Error uploading image"
 }
 
 

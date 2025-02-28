@@ -20,20 +20,21 @@ load_dotenv()
 ACCESS_TOKEN_EXPIRED_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRED_MINUTES")
 
 
-def get_auth_services():
+def get_auth_service():
     try:
-        yield AuthenticationServices()
+        yield AuthenticationService()
     finally:
         pass
 
 
-class AuthenticationServices:
-    def authenticate_user(self, data: OAuth2PasswordRequestForm, db: Session) -> BaseResponse:
+class AuthenticationService:
+    def authenticate_user(self, data: OAuth2PasswordRequestForm, db: Session) -> TokenSchema | BaseResponse:
         user_db = db.query(User).filter(User.username == data.username).first()
         if user_db is None or not verify_password(data.password, user_db.hashed_password):
-            return raise_error(1003)
+            return raise_error(1004)
+
         access_token = create_access_token(
             data={"sub": user_db.username, "id": user_db.id},
             expired_delta=timedelta(minutes=int(ACCESS_TOKEN_EXPIRED_MINUTES))
         )
-        return BaseResponse(message="Login successful", data=TokenSchema(access_token=access_token))
+        return TokenSchema(access_token=access_token)
