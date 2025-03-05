@@ -1,14 +1,9 @@
 from configs.authentication import hash_password, verify_password
-
 from models.user import User
 from models.follow import Follow
-
-from schemas.user import UserRegisterSchema, UserProfileSchema
+from schemas.user import UserProfileSchema, UserInfoUpdateSchema, UserPasswordUpdateSchema
 from schemas.base_response import BaseResponse
-from schemas.authentication import PasswordUpdateSchema
-
 from exceptions import raise_error
-
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -21,30 +16,11 @@ def get_user_service():
 
 
 class UserService:
-    def register(self, data: UserRegisterSchema, db: Session) -> BaseResponse:
-        existing_user = db.query(User).filter(User.username == data.username).first()
-        if existing_user is not None:
-            return raise_error(1001)
+    def get_info(self, db: Session, user_id: int) -> BaseResponse:
+        user_db = db.query(User).filter(User.id == user_id).first()
 
-        existing_user = db.query(User).filter(User.email == data.email).first()
-        if existing_user is not None:
-            return raise_error(1002)
-
-        user_regis = User(
-            username=data.username,
-            email=data.email,
-            hashed_password=hash_password(data.password)
-        )
-        db.add(user_regis)
-        db.commit()
-        db.refresh(user_regis)
-        return BaseResponse(message="Register successfully")
-
-    def get_info(self, db: Session, user: dict) -> BaseResponse:
-        user_db = db.query(User).filter(User.id == user["id"]).first()
-
-        followers_number = db.query(func.count(Follow.followed_id)).filter(Follow.followed_id == user["id"]).scalar()
-        followings_number = db.query(func.count(Follow.follower_id)).filter(Follow.follower_id == user["id"]).scalar()
+        followers_number = db.query(func.count(Follow.followed_id)).filter(Follow.followed_id == user_id).scalar()
+        followings_number = db.query(func.count(Follow.follower_id)).filter(Follow.follower_id == user_id).scalar()
 
         user_info = UserProfileSchema(
             username=user_db.username,
@@ -54,13 +30,31 @@ class UserService:
         )
         return BaseResponse(message="Get user's info successfully", data=user_info)
 
-    def update_password(self, data: PasswordUpdateSchema, db: Session, user: dict) -> BaseResponse:
-        user_db = db.query(User).filter(User.id == user["id"]).first()
+    def update_info(self, data: UserInfoUpdateSchema, db: Session, user_id: int) -> BaseResponse:
+        existing_user = db.query(User).filter(
+            (User.username == data.username) | (User.email == data.email),
+            User.id != user_id
+        ).first()
+        if existing_user is not None:
+            if existing_user.username == data.username:
+                return raise_error(1001)
+            return raise_error(1002)
+
+        user_db = db.query(User).filter(User.id == user_id).first()
+        _data = data.model_dump(exclude_unset=True).items()
+        update_data = {key: value.strip() for key, value in _data if isinstance(value, str) and value.strip() != ""}
+
+        if update_data:
+            for key, value in update_data.items():
+                setattr(user_db, key, value)
+        return BaseResponse(message="Update user's info successfully")
+
+    def update_password(self, data: UserPasswordUpdateSchema, db: Session, user_id: int) -> BaseResponse:
+        user_db = db.query(User).filter(User.id == user_id).first()
         if not verify_password(data.current_password, user_db.hashed_password):
             return raise_error(1005)
 
         user_db.hashed_password = hash_password(data.new_password)
-        db.add(user_db)
         db.commit()
         db.refresh(user_db)
         return BaseResponse(message="Password updated")

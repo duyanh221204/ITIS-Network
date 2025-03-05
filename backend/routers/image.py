@@ -1,12 +1,12 @@
 from configs.authentication import get_current_user
-
 from services.image_service import get_image_service
-
 from exceptions import raise_error
-
 from fastapi import APIRouter, Depends, UploadFile, File
 
-router = APIRouter(prefix="/api/image", tags=["Image"])
+router = APIRouter(
+    prefix="/api/image",
+    tags=["Image"]
+)
 
 
 @router.post("/upload")

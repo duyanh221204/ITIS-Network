@@ -9,7 +9,8 @@ ERROR_CODES = {
     1004: "Incorrect credentials",
     1005: "Incorrect current password",
     1006: "Error updating password",
-    1007: "Unable to get user's info",
+    1007: "Error getting user's info",
+    1008: "Error updating user's info",
 
     2000: "Error uploading image"
 }

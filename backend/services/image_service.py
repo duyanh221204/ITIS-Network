@@ -1,12 +1,10 @@
 from schemas.base_response import BaseResponse
-
 from exceptions import raise_error
-
 from fastapi import UploadFile
+import cloudinary
 from cloudinary.uploader import upload
-
 from dotenv import load_dotenv
-import cloudinary, os
+import os
 
 load_dotenv()
 

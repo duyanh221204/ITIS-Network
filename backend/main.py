@@ -1,10 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from configs.database import Base, engine
-
 from models import *
-
 from routers import user, authentication, image
 
 app = FastAPI()
