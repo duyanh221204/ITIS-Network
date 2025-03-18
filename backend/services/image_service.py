@@ -1,5 +1,5 @@
 from schemas.base_response import BaseResponse
-from exceptions import raise_error
+from utils.exceptions import raise_error
 from fastapi import UploadFile
 import cloudinary
 from cloudinary.uploader import upload
@@ -23,7 +23,7 @@ def get_image_service():
 
 
 class ImageService:
-    async def upload_image(self, data: UploadFile) -> BaseResponse:
+    def upload_image(self, data: UploadFile) -> BaseResponse:
         try:
             result = upload(data.file)
             image_url = result["secure_url"]

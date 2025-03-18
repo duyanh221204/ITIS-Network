@@ -11,6 +11,7 @@ class UserRegisterSchema(UserBaseSchema):
 
 
 class UserProfileSchema(UserBaseSchema):
+    id: int
     avatar: str | None = None
     introduction: str | None = None
     followers_number: int

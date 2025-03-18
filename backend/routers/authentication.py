@@ -1,9 +1,9 @@
-from configs.database import get_db
 from schemas.user import UserRegisterSchema
 from services.authentication_service import get_auth_service
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from exceptions import raise_error
+from utils.configs.database import get_db
+from utils.exceptions import raise_error
 
 router = APIRouter(
     prefix="/api/auth",
@@ -12,7 +12,7 @@ router = APIRouter(
 
 
 @router.post("/register")
-async def register(
+def register(
         data: UserRegisterSchema,
         db=Depends(get_db),
         auth_service=Depends(get_auth_service)
@@ -24,7 +24,7 @@ async def register(
 
 
 @router.post("/login")
-async def login_for_access_token(
+def login_for_access_token(
         data: OAuth2PasswordRequestForm = Depends(),
         db=Depends(get_db),
         auth_service=Depends(get_auth_service)

@@ -1,6 +1,6 @@
-from configs.authentication import get_current_user
 from services.image_service import get_image_service
-from exceptions import raise_error
+from utils.configs.authentication import get_current_user
+from utils.exceptions import raise_error
 from fastapi import APIRouter, Depends, UploadFile, File
 
 router = APIRouter(
@@ -10,12 +10,12 @@ router = APIRouter(
 
 
 @router.post("/upload")
-async def upload_image(
+def upload_image(
         data: UploadFile = File(...),
         _=Depends(get_current_user),
         image_service=Depends(get_image_service)
 ):
     try:
-        return await image_service.upload_image(data)
+        return image_service.upload_image(data)
     except Exception:
         return raise_error(2000)

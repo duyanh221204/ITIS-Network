@@ -1,9 +1,9 @@
-from configs.authentication import hash_password, verify_password
 from models.user import User
 from models.follow import Follow
 from schemas.user import UserProfileSchema, UserInfoUpdateSchema, UserPasswordUpdateSchema
 from schemas.base_response import BaseResponse
-from exceptions import raise_error
+from utils.configs.authentication import hash_password, verify_password
+from utils.exceptions import raise_error
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -23,6 +23,7 @@ class UserService:
         followings_number = db.query(func.count(Follow.follower_id)).filter(Follow.follower_id == user_id).scalar()
 
         user_info = UserProfileSchema(
+            id=user_id,
             username=user_db.username,
             email=user_db.email,
             followers_number=followers_number,
@@ -52,7 +53,7 @@ class UserService:
     def update_password(self, data: UserPasswordUpdateSchema, db: Session, user_id: int) -> BaseResponse:
         user_db = db.query(User).filter(User.id == user_id).first()
         if not verify_password(data.current_password, user_db.hashed_password):
-            return raise_error(1005)
+            return raise_error(1006)
 
         user_db.hashed_password = hash_password(data.new_password)
         db.commit()
