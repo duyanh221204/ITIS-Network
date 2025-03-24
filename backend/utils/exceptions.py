@@ -11,6 +11,8 @@ ERROR_CODES = {
     1007: "Error updating password",
     1008: "Error getting user's info",
     1009: "Error updating user's info",
+    1010: "Error following user",
+    1011: "Error unfollowing user",
 
     2000: "Error uploading image",
     2001: "Post must have content or image",

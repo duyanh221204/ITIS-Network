@@ -24,12 +24,12 @@ def get_auth_service():
 
 class AuthenticationService:
     def register(self, data: UserRegisterSchema, db: Session) -> BaseResponse:
-        existing_user = db.query(User).filter(User.username == data.username).first()
+        existing_user = db.query(User).filter(
+            (User.username == data.username) | (User.email == data.email),
+        ).first()
         if existing_user is not None:
-            return raise_error(1001)
-
-        existing_user = db.query(User).filter(User.email == data.email).first()
-        if existing_user is not None:
+            if existing_user.username == data.username:
+                return raise_error(1001)
             return raise_error(1002)
 
         new_user = User(
