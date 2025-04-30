@@ -1,0 +1,265 @@
+.chat-page
+{
+    padding: 20px;
+}
+
+.chat-container
+{
+    display: flex;
+    height: calc(100vh - 140px);
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.conversations-sidebar
+{
+    width: 300px;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f9;
+}
+
+.sidebar-title
+{
+    padding: 16px;
+    margin: 0;
+    font-size: 18px;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.conversations-list
+{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.conversation-item
+{
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.conversation-item:hover
+{
+    background-color: var(--hover-color);
+}
+
+.conversation-item.active
+{
+    background-color: rgba(26, 115, 232, 0.1);
+}
+
+.conversation-avatar
+{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+}
+
+.conversation-info
+{
+    flex: 1;
+}
+
+.conversation-name
+{
+    display: block;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--text-color);
+}
+
+.conversation-time
+{
+    font-size: 12px;
+    color: var(--secondary-color);
+}
+
+.unread-indicator
+{
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    position: absolute;
+    right: 16px;
+}
+
+.messages-container
+{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.messages-header
+{
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+}
+
+.header-avatar
+{
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+}
+
+.header-name
+{
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.messages-list
+{
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.message
+{
+    max-width: 70%;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.my-message
+{
+    align-self: flex-end;
+    background-color: #e6f7ff;
+}
+
+.other-message
+{
+    align-self: flex-start;
+    background-color: #f1f1f1;
+}
+
+.my-message .message-content
+{
+    border-radius: 18px 18px 4px 18px;
+}
+
+.other-message .message-content
+{
+    border-radius: 18px 18px 18px 4px;
+}
+
+.message-content
+{
+    padding: 10px 14px;
+    overflow-wrap: break-word;
+    font-size: 14px;
+}
+
+.message-info
+{
+    display: flex;
+    align-items: center;
+    align-self: flex-end;
+    font-size: 11px;
+    color: var(--secondary-color);
+    margin-top: 3px;
+}
+
+.read-status
+{
+    margin-left: 4px;
+}
+
+.read-status.read
+{
+    color: var(--primary-color);
+}
+
+.message-form
+{
+    padding: 12px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+}
+
+.message-input
+{
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    outline: none;
+    font-size: 14px;
+}
+
+.message-input:focus
+{
+    border-color: var(--primary-color);
+}
+
+.send-button
+{
+    margin-left: 8px;
+    padding: 0 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.send-button:hover
+{
+    background-color: #1557b0;
+}
+
+.send-button:disabled
+{
+    background-color: var(--border-color);
+    cursor: not-allowed;
+}
+
+.empty-state
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--secondary-color);
+    font-size: 16px;
+    text-align: center;
+    padding: 20px;
+}
+
+.select-conversation
+{
+    font-size: 18px;
+    color: var(--primary-color);
+}
+
+.sidebar-loading
+{
+    height: 200px;
+}

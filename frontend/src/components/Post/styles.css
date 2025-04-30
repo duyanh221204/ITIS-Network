@@ -1,0 +1,280 @@
+.post
+{
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.post-header
+{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.author-info
+{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.author-avatar
+{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 12px;
+}
+
+.author-name
+{
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.post-date
+{
+    color: var(--secondary-color);
+    font-size: 12px;
+}
+
+.post-image
+{
+    width: 100%;
+    max-height: 500px;
+    overflow: hidden;
+}
+
+.post-image img
+{
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.post-content
+{
+    padding: 16px;
+    color: var(--text-color);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.post-actions
+{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.post-action
+{
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    transition: background 0.15s;
+}
+
+.post-action:hover
+{
+    background-color: var(--hover-color);
+}
+
+.post-action.liked
+{
+    color: #e41e3f;
+}
+
+.post-action.liked .action-icon
+{
+    color: #e0245e;
+}
+
+.action-icon
+{
+    font-size: 20px;
+    margin-right: 4px;
+}
+
+.action-text
+{
+    font-size: 15px;
+    font-weight: 500;
+    margin-right: 0;
+}
+
+.likes-modal
+{
+    min-width: 260px;
+    max-width: 320px;
+}
+
+.likes-container, .comments-container
+{
+    padding: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.likes-container h4, .comments-container h4
+{
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: var(--secondary-color);
+}
+
+.likes-list
+{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.like-item
+{
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.like-item:last-child
+{
+    border-bottom: none;
+}
+
+.like-user
+{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.like-avatar
+{
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 8px;
+}
+
+.like-username
+{
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.comment-form
+{
+    display: flex;
+    margin-bottom: 16px;
+}
+
+.comment-input
+{
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 14px;
+    outline: none;
+}
+
+.comment-input:focus
+{
+    border-color: var(--primary-color);
+}
+
+.comment-submit
+{
+    margin-left: 8px;
+    padding: 0 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.comment-submit:hover
+{
+    background-color: #1557b0;
+}
+
+.comment-submit:disabled
+{
+    background-color: var(--border-color);
+    cursor: not-allowed;
+}
+
+.comments-list
+{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.comment-item
+{
+    display: flex;
+    margin-bottom: 12px;
+}
+
+.comment-author
+{
+    margin-right: 12px;
+}
+
+.comment-avatar
+{
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-content
+{
+    flex: 1;
+    background-color: var(--hover-color);
+    border-radius: 16px;
+    padding: 8px 12px;
+}
+
+.comment-author-name
+{
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.comment-text
+{
+    margin: 4px 0 0;
+    font-size: 14px;
+}
+
+.no-comments
+{
+    color: var(--secondary-color);
+    text-align: center;
+    font-size: 14px;
+    padding: 12px 0;
+}

@@ -1,0 +1,44 @@
+.home-page
+{
+    padding: 20px;
+}
+
+.page-title
+{
+    margin-bottom: 24px;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.posts-container
+{
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.error-container
+{
+    text-align: center;
+    padding: 40px 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.error-container .error-message
+{
+    margin-bottom: 16px;
+    color: var(--error-color);
+}
+
+.empty-posts
+{
+    text-align: center;
+    padding: 40px 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    color: var(--secondary-color);
+    font-size: 16px;
+}

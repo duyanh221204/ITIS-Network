@@ -1,0 +1,229 @@
+.header
+{
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.header-container
+{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-logo
+{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.header-logo img
+{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+}
+
+.header-right
+{
+    display: flex;
+    align-items: center;
+}
+
+.notification-button, .message-button
+{
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    margin-left: 15px;
+    font-size: 20px;
+}
+
+.notification-icon, .message-icon
+{
+    font-style: normal;
+}
+
+.notification-badge
+{
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--error-color);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+}
+
+.dropdown-menu
+{
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1001;
+}
+
+.dropdown-menu h3
+{
+    padding: 12px 16px;
+    margin: 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 16px;
+    color: var(--text-color);
+}
+
+.notifications-list, .messages-list
+{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.notification-item, .message-item
+{
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.notification-item:hover, .message-item:hover
+{
+    background-color: var(--hover-color);
+}
+
+.notification-item.unread
+{
+    background-color: #e8f0fe;
+}
+
+.notification-avatar, .message-avatar
+{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+}
+
+.notification-content, .message-content
+{
+    flex: 1;
+}
+
+.notification-content p
+{
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.notification-time, .message-time
+{
+    font-size: 12px;
+    color: var(--secondary-color);
+}
+
+.unread-indicator
+{
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.empty-message
+{
+    padding: 16px;
+    text-align: center;
+    color: var(--secondary-color);
+    font-size: 14px;
+}
+
+.view-all-link
+{
+    display: block;
+    text-align: center;
+    padding: 12px 16px;
+    color: var(--primary-color);
+    text-decoration: none;
+    border-top: 1px solid var(--border-color);
+    font-size: 14px;
+}
+
+.view-all-link:hover
+{
+    background-color: var(--hover-color);
+}
+
+.profile-link
+{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-color);
+    margin-left: 20px;
+}
+
+.profile-icon
+{
+    margin-right: 6px;
+    font-style: normal;
+    font-size: 18px;
+}
+
+.logout-button
+{
+    margin-left: 20px;
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.logout-button:hover
+{
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.header-notifications, .header-messages
+{
+    position: relative;
+}

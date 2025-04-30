@@ -1,0 +1,133 @@
+.create-post-form
+{
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.create-post-form h3
+{
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--text-color);
+    font-size: 18px;
+}
+
+.post-textarea
+{
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    resize: vertical;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.post-textarea:focus
+{
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.image-preview
+{
+    position: relative;
+    margin-bottom: 16px;
+    max-height: 300px;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.image-preview img
+{
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.remove-image
+{
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.form-actions
+{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-input-container
+{
+    display: flex;
+    align-items: center;
+}
+
+.file-input-label
+{
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+.file-input-label:hover
+{
+    background-color: rgba(26, 115, 232, 0.05);
+}
+
+.file-input
+{
+    display: none;
+}
+
+.file-name
+{
+    font-size: 14px;
+    color: var(--secondary-color);
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.image-icon
+{
+    margin-right: 6px;
+    font-style: normal;
+}
+
+.post-btn
+{
+    min-width: 80px;
+}
+
+.post-btn .loading-spinner
+{
+    width: 24px;
+    height: 24px;
+}

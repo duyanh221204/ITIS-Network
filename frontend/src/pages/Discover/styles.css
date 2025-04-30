@@ -1,0 +1,57 @@
+.discover-page
+{
+    padding: 20px;
+}
+
+.page-title
+{
+    margin-bottom: 24px;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.search-container
+{
+    max-width: 600px;
+    margin: 0 auto 20px;
+}
+
+.search-input
+{
+    width: 100%;
+    padding: 10px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus
+{
+    border-color: var(--primary-color);
+}
+
+.users-container
+{
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.error-container
+{
+    text-align: center;
+    padding: 40px 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.error-container .error-message
+{
+    margin-bottom: 16px;
+    color: var(--error-color);
+}
