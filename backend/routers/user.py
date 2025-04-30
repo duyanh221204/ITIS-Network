@@ -6,7 +6,7 @@ from utils.exceptions import raise_error
 from fastapi import APIRouter, Depends
 
 router = APIRouter(
-    prefix="/api/user",
+    prefix="/api/users",
     tags=["User"]
 )
 
@@ -48,3 +48,15 @@ def unfollow_user(
         return user_service.unfollow_user(db, user["id"], user_id)
     except Exception:
         return raise_error(1011)
+
+
+@router.get("")
+def get_not_followed_users(
+        db=Depends(get_db),
+        user=Depends(get_current_user),
+        user_service=Depends(get_user_service)
+):
+    try:
+        return user_service.get_not_followed_users(db, user["id"])
+    except Exception:
+        return raise_error(1012)

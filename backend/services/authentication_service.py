@@ -35,6 +35,8 @@ class AuthenticationService:
         new_user = User(
             username=data.username,
             email=data.email,
+            avatar=data.avatar,
+            introduction=data.introduction,
             hashed_password=hash_password(data.password)
         )
         db.add(new_user)

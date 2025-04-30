@@ -11,14 +11,15 @@ router = APIRouter(
 )
 
 
-@router.get("/info")
+@router.get("/{user_id}")
 def get_info(
+        user_id: int,
         db=Depends(get_db),
-        user=Depends(get_current_user),
+        _=Depends(get_current_user),
         profile_service=Depends(get_profile_service)
 ):
     try:
-        return profile_service.get_info(db, user["id"])
+        return profile_service.get_info(db, user_id)
     except Exception:
         return raise_error(1008)
 

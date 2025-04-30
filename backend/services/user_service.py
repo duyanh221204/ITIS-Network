@@ -1,6 +1,7 @@
+from models.notification import Notification, NotificationType
 from models.user import User
 from models.follow import Follow
-from schemas.user import UserPasswordUpdateSchema
+from schemas.user import UserPasswordUpdateSchema, UserMiniSchema
 from schemas.base_response import BaseResponse
 from utils.configs.authentication import hash_password, verify_password
 from utils.exceptions import raise_error
@@ -31,6 +32,13 @@ class UserService:
             followed_id=followed_id
         )
         db.add(new_follow)
+        
+        db.add(Notification(
+            type=NotificationType.FOLLOW,
+            actor_id=follower_id,
+            receiver_id=followed_id
+        ))
+
         db.commit()
         db.refresh(new_follow)
         return BaseResponse(message="Successfully follow user")
@@ -45,3 +53,10 @@ class UserService:
         db.commit()
         return BaseResponse(message="Successfully unfollow user")
 
+    def get_not_followed_users(self, db: Session, user_id: int) -> BaseResponse:
+        followed = db.query(Follow.followed_id).filter(Follow.follower_id == user_id).all()
+        exclude_ids = {result[0] for result in followed} | {user_id}
+        users = db.query(User).filter(User.id.notin_(exclude_ids)).all()
+
+        data = [UserMiniSchema.model_validate(user) for user in users]
+        return BaseResponse(message="Users retrieved successfully", data=data)

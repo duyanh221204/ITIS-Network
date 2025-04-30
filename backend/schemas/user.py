@@ -7,15 +7,27 @@ class UserBaseSchema(BaseModel):
 
 
 class UserRegisterSchema(UserBaseSchema):
+    avatar: str | None = None
+    introduction: str | None = None
     password: str
+
+
+class UserMiniSchema(BaseModel):
+    id: int
+    username: str
+    avatar: str | None = None
+
+    model_config = {
+        "from_attributes": True
+    }
 
 
 class UserProfileSchema(UserBaseSchema):
     id: int
     avatar: str | None = None
     introduction: str | None = None
-    followers_number: int
-    followings_number: int
+    followers: list[UserMiniSchema]
+    followings: list[UserMiniSchema]
 
 
 class UserInfoUpdateSchema(BaseModel):
