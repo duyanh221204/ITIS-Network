@@ -227,3 +227,12 @@
 {
     position: relative;
 }
+
+.notification-label, .message-label
+{
+    font-size: 13px;
+    margin-left: 6px;
+    color: var(--secondary-color);
+    font-weight: 500;
+    vertical-align: middle;
+}

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getAllPosts } from '../../services/postService';
 import Post from '../../components/Post';
-import CreatePostForm from '../../components/CreatePostForm';
 import './styles.css';
 
 const Home = () =>
@@ -37,43 +36,36 @@ const Home = () =>
         }
     };
 
-    const handlePostCreated = () =>
-    {
-        fetchPosts();
-    };
-
     return (
         <div className="home-page">
             <h1 className="page-title">News Feed</h1>
 
-            <CreatePostForm onPostCreated={handlePostCreated} />
-
-            {loading ? (
+            { loading ? (
                 <div className="loading">
                     <div className="loading-spinner"></div>
                 </div>
             ) : error ? (
                 <div className="error-container">
-                    <p className="error-message">{error}</p>
-                    <button onClick={fetchPosts} className="btn btn-primary">
+                    <p className="error-message">{ error }</p>
+                    <button onClick={ fetchPosts } className="btn btn-primary">
                         Try Again
                     </button>
                 </div>
             ) : (
                 <>
-                    {posts.length > 0 ? (
+                    { posts.length > 0 ? (
                         <div className="posts-container">
-                            {posts.map(post => (
-                                <Post key={post.id} post={post} refreshPosts={fetchPosts} />
-                            ))}
+                            { posts.map(post => (
+                                <Post key={ post.id } post={ post } refreshPosts={ fetchPosts } />
+                            )) }
                         </div>
                     ) : (
                         <div className="empty-posts">
                             <p>No posts yet. Create a post or follow other users to see their posts here!</p>
                         </div>
-                    )}
+                    ) }
                 </>
-            )}
+            ) }
         </div>
     );
 }

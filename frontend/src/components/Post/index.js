@@ -171,7 +171,6 @@ const Post = ({ post }) =>
                 <button
                     className={ `post-action ${ localHasLiked ? 'liked' : '' }` }
                     onClick={ handleLikeUnlike }
-                    disabled={ isLiking }
                 >
                     <span>{ localHasLiked ? '❤️' : '🤍' }</span>
                 </button>

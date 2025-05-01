@@ -36,13 +36,13 @@
 .author-name
 {
     font-weight: 600;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .post-date
 {
     color: var(--secondary-color);
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .post-image
@@ -63,7 +63,7 @@
 {
     padding: 16px;
     color: var(--text-color);
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.5;
 }
 
@@ -71,7 +71,7 @@
 {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     margin-top: 12px;
 }
 
@@ -85,6 +85,17 @@
     font-size: 16px;
     padding: 4px 8px;
     transition: background 0.15s;
+    gap: 0;
+}
+
+.post-action span:first-child
+{
+    margin-right: 6px;
+}
+
+.post-action.like-btn span:first-child
+{
+    margin-right: 2px;
 }
 
 .post-action:hover
@@ -105,14 +116,14 @@
 .action-icon
 {
     font-size: 20px;
-    margin-right: 4px;
+    margin-right: 0;
 }
 
 .action-text
 {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 500;
-    margin-right: 0;
+    margin-left: 0;
 }
 
 .likes-modal
@@ -190,7 +201,7 @@
     padding: 8px 12px;
     border: 1px solid var(--border-color);
     border-radius: 20px;
-    font-size: 14px;
+    font-size: 13px;
     outline: none;
 }
 
@@ -208,7 +219,7 @@
     border: none;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
 }
 
@@ -228,6 +239,7 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    font-size: 13px;
 }
 
 .comment-item
@@ -262,13 +274,13 @@
     text-decoration: none;
     color: var(--text-color);
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .comment-text
 {
     margin: 4px 0 0;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .no-comments

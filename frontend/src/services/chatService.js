@@ -30,6 +30,12 @@ export const markConversationAsRead = async (conversationId) =>
     return response.data;
 };
 
+export const getUnreadConversations = async () =>
+{
+    const response = await api.get('/chats/conversations/unread');
+    return response.data;
+};
+
 export const getWebSocketUrl = (conversationId) =>
 {
     const token = localStorage.getItem('token');
