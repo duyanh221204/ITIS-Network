@@ -4,7 +4,7 @@ from models import User
 from models.conversation import Conversation
 from models.message import Message
 from schemas.base_response import BaseResponse
-from schemas.chat import ConversationSchema, MessageSchema, MessageCreateSchema
+from schemas.chat import ConversationSchema, MessageSchema, MessageCreateSchema, UnreadConversationsSchema
 from schemas.user import UserMiniSchema
 from utils.exceptions import raise_error
 
@@ -106,3 +106,24 @@ class ChatService:
         ).update({Message.is_read: True}, synchronize_session=False)
         db.commit()
         return BaseResponse(message="Conversation marked as read")
+
+    def unread_count(self, db: Session, user_id: int) -> BaseResponse:
+        unread_messages = db.query(Message).filter(
+            Message.sender_id != user_id,
+            Message.is_read == False
+        ).all()
+
+        mark_cnv = set()
+        cnv_ids = []
+
+        for msg in unread_messages:
+            cnv_id = msg.conversation_id
+            if cnv_id not in mark_cnv:
+                mark_cnv.add(cnv_id)
+                cnv_ids.append(cnv_id)
+
+        response = UnreadConversationsSchema(
+            count=len(cnv_ids),
+            ids=cnv_ids
+        )
+        return BaseResponse(message="Unread conversations retrieved successfully", data=response)

@@ -82,6 +82,18 @@ def mark_as_read(
         return raise_error(4004)
 
 
+@router.get("/conversations/unread")
+def unread_count(
+        db=Depends(get_db),
+        user=Depends(get_current_user),
+        chat_service=Depends(get_chat_service)
+):
+    try:
+        return chat_service.unread_count(db, user["id"])
+    except Exception:
+        return raise_error(4005)
+
+
 @router.websocket("/ws/{conversation_id}")
 async def chat_websocket(
         conversation_id: int,

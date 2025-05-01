@@ -33,3 +33,8 @@ class MessageSchema(BaseModel):
     model_config = {
         "from_attribute": True
     }
+    
+    
+class UnreadConversationsSchema(BaseModel):
+    count: int
+    ids: list[int]

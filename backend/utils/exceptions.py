@@ -35,7 +35,8 @@ ERROR_CODES = {
     4001: "Error retrieving conversations",
     4002: "Error retrieving messages or no access",
     4003: "Error sending message",
-    4004: "Error marking conversation as read"
+    4004: "Error marking conversation as read",
+    4005: "Error retrieving unread conversations"
 }
 
 
