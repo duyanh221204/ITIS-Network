@@ -1,24 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
+import MainLayout from './layouts/MainLayout';
+import './styles/global.css';
 
-function App() {
+const App = () =>
+{
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+
+  useEffect(() =>
+  {
+    const handleStorage = () =>
+    {
+      setIsAuthenticated(!!localStorage.getItem('token'));
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={ !isAuthenticated ? <Login setIsAuthenticated={ setIsAuthenticated } /> : <Navigate to={ window.location.pathname !== '/login' ? window.location.pathname : window.location.pathname } /> } />
+        <Route path="/register" element={ !isAuthenticated ? <Register /> : <Navigate to={ window.location.pathname !== '/register' ? window.location.pathname : window.location.pathname } /> } />
+        <Route path="/*" element={ isAuthenticated ? <MainLayout /> : <Navigate to="/login" /> } />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

@@ -1,0 +1,18 @@
+.create-post-page
+{
+    padding: 20px;
+}
+
+.page-title
+{
+    margin-bottom: 24px;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.create-post-container
+{
+    max-width: 600px;
+    margin: 0 auto;
+}

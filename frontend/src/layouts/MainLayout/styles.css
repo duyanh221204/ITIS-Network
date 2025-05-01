@@ -1,0 +1,23 @@
+.main-layout
+{
+    min-height: 100vh;
+}
+
+.content-wrapper
+{
+    display: flex;
+    padding-top: 60px;
+}
+
+.main-content
+{
+    flex: 1;
+    margin-left: 240px;
+    transition: margin-left 0.3s ease;
+    min-height: calc(100vh - 60px);
+}
+
+.sidebar.closed ~ .main-content
+{
+    margin-left: 60px;
+}

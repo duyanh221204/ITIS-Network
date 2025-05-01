@@ -1,0 +1,83 @@
+.user-list
+{
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.user-list-title
+{
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 18px;
+    color: var(--text-color);
+}
+
+.users
+{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.user-item
+{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.user-item:last-child
+{
+    border-bottom: none;
+}
+
+.user-link
+{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.user-avatar
+{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 12px;
+}
+
+.user-name
+{
+    font-weight: 500;
+}
+
+.follow-button
+{
+    padding: 6px 12px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.follow-button:hover
+{
+    background-color: #1557b0;
+}
+
+.empty-users
+{
+    color: var(--secondary-color);
+    text-align: center;
+    padding: 12px 0;
+}
