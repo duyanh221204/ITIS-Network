@@ -275,7 +275,7 @@ const Post = ({post}) =>
                                                             />
                                                         </Link>
                                                         <div className="comment-content">
-                                                            <Link to={`/profile/${comment.author_id }`} className="comment-author-name">
+                                                            <Link to={`/profile/${comment.author_id}`} className="comment-author-name">
                                                                 {
                                                                     comment.author_name
                                                                 }
