@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { createPost } from '../../services/postService';
-import { uploadImage } from '../../services/authService';
-import './styles.css';
+import {useState} from "react";
+import {createPost} from "../../services/postService";
+import {uploadImage} from "../../services/authService";
+import "./styles.css";
 
-const CreatePostForm = ({ onPostCreated }) =>
+const CreatePostForm = ({onPostCreated}) =>
 {
-    const [content, setContent] = useState('');
+    const [content, setContent] = useState("");
     const [image, setImage] = useState(null);
-    const [previewUrl, setPreviewUrl] = useState('');
-    const [fileName, setFileName] = useState('');
+    const [previewUrl, setPreviewUrl] = useState("");
+    const [fileName, setFileName] = useState("");
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState("");
 
     const handleFileChange = (e) =>
     {
@@ -33,8 +33,8 @@ const CreatePostForm = ({ onPostCreated }) =>
     const clearImage = () =>
     {
         setImage(null);
-        setPreviewUrl('');
-        setFileName('');
+        setPreviewUrl("");
+        setFileName("");
     };
 
     const handleSubmit = async (e) =>
@@ -48,7 +48,7 @@ const CreatePostForm = ({ onPostCreated }) =>
         }
 
         setLoading(true);
-        setError('');
+        setError("");
 
         try
         {
@@ -59,24 +59,25 @@ const CreatePostForm = ({ onPostCreated }) =>
                 imageUrl = imageResponse.data;
             }
 
-            await createPost(
+            await createPost
+            (
                 {
                     content: content.trim(),
                     image: imageUrl
                 }
             );
 
-            setContent('');
+            setContent("");
             setImage(null);
-            setPreviewUrl('');
-            setFileName('');
+            setPreviewUrl("");
+            setFileName("");
 
             if (onPostCreated)
                 onPostCreated();
         }
-        catch (err)
+        catch (error)
         {
-            setError(err.response?.data?.message || 'Error creating post');
+            setError(error.response?.data?.message || "Error creating post");
         }
         finally
         {
@@ -95,18 +96,21 @@ const CreatePostForm = ({ onPostCreated }) =>
             onChange={(e) => setContent(e.target.value)}
         ></textarea>
 
-                {previewUrl && (
-                    <div className="image-preview">
-                        <img src={previewUrl} alt="Preview" />
-                        <button
-                            type="button"
-                            className="remove-image"
-                            onClick={clearImage}
-                        >
-                            ×
-                        </button>
-                    </div>
-                )}
+                {
+                    previewUrl &&
+                    (
+                        <div className="image-preview">
+                            <img src={previewUrl} alt="Preview" />
+                            <button
+                                type="button"
+                                className="remove-image"
+                                onClick={clearImage}
+                            >
+                                ×
+                            </button>
+                        </div>
+                    )
+                }
 
                 <div className="form-actions">
                     <div className="file-input-container">
@@ -128,11 +132,15 @@ const CreatePostForm = ({ onPostCreated }) =>
                         className="btn btn-primary post-btn"
                         disabled={loading || (!content.trim() && !image)}
                     >
-                        {loading ? <div className="loading-spinner"></div> : 'Post'}
+                        {
+                            loading ? <div className="loading-spinner"></div> : "Post"
+                        }
                     </button>
                 </div>
 
-                {error && <div className="error-message">{error}</div>}
+                {
+                    error && <div className="error-message">{error}</div>
+                }
             </form>
         </div>
     );

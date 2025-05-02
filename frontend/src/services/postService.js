@@ -1,14 +1,14 @@
-import api from '../utils/api';
+import api from "../utils/api";
 
 export const getAllPosts = async () =>
 {
-    const response = await api.get('/posts/all');
+    const response = await api.get("/posts/all");
     return response.data;
 };
 
 export const getFollowingPosts = async () =>
 {
-    const response = await api.get('/posts/followings');
+    const response = await api.get("/posts/followings");
     return response.data;
 };
 
@@ -20,7 +20,7 @@ export const getUserPosts = async (userId) =>
 
 export const createPost = async (postData) =>
 {
-    const response = await api.post('/posts/create', postData);
+    const response = await api.post("/posts/create", postData);
     return response.data;
 };
 
