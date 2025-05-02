@@ -1,8 +1,8 @@
-import api from '../utils/api';
+import api from "../utils/api";
 
 export const getAllNotifications = async () =>
 {
-    const response = await api.get('/notifications/all');
+    const response = await api.get("/notifications/all");
     return response.data;
 };
 

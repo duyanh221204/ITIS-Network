@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import { getNotFollowedUsers, followUser } from '../../services/profileService';
-import UserList from '../../components/UserList';
-import './styles.css';
+import {useState, useEffect} from "react";
+import {getNotFollowedUsers, followUser} from "../../services/profileService";
+import UserList from "../../components/UserList";
+import "./styles.css";
 
 const Discover = () =>
 {
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [error, setError] = useState('');
+    const [searchTerm, setSearchTerm] = useState("");
+    const [error, setError] = useState("");
 
     useEffect(() =>
     {
@@ -35,20 +35,18 @@ const Discover = () =>
         try
         {
             const response = await getNotFollowedUsers();
-            if (response.status === 'ok')
+            if (response.status === "ok")
             {
                 setUsers(response.data || []);
                 setFilteredUsers(response.data || []);
             }
             else
-            {
-                setError('Failed to fetch users');
-            }
+                setError("Failed to fetch users");
         }
-        catch (err)
+        catch (error)
         {
-            setError('Error loading users');
-            console.error(err);
+            setError("Error loading users");
+            throw error;
         }
         finally
         {
@@ -61,7 +59,7 @@ const Discover = () =>
         try
         {
             const response = await followUser(userId);
-            if (response.status === 'ok')
+            if (response.status === "ok")
             {
                 const updatedUsers = users.filter(user => user.id !== userId);
                 setUsers(updatedUsers);
@@ -70,7 +68,7 @@ const Discover = () =>
         }
         catch (error)
         {
-            console.error('Error following user:', error);
+            throw error;
         }
     };
 
@@ -88,30 +86,35 @@ const Discover = () =>
                 />
             </div>
 
-            {loading ? (
-                <div className="loading">
-                    <div className="loading-spinner"></div>
-                </div>
-            ) : error ? (
-                <div className="error-container">
-                    <p className="error-message">{error}</p>
-                    <button onClick={fetchUsers} className="btn btn-primary">
-                        Try Again
-                    </button>
-                </div>
-            ) : (
-                <div className="users-container">
-                    <UserList
-                        users={filteredUsers}
-                        emptyMessage={
-                            searchTerm ?
-                                "No users match your search" :
-                                "No more users to discover. You've followed everyone!"
-                        }
-                        onFollowAction={handleFollow}
-                    />
-                </div>
-            )}
+            {
+                loading ?
+                    (
+                        <div className="loading">
+                            <div className="loading-spinner"></div>
+                        </div>
+                    ) :
+                    error ?
+                        (
+                            <div className="error-container">
+                                <p className="error-message">{error}</p>
+                                <button onClick={fetchUsers} className="btn btn-primary">
+                                    Try Again
+                                </button>
+                            </div>
+                        ) :
+                        (
+                            <div className="users-container">
+                                <UserList
+                                    users={filteredUsers}
+                                    emptyMessage=
+                                        {
+                                            searchTerm ? "No users match your search" : "No more users to discover. You've followed everyone!"
+                                        }
+                                    onFollowAction={handleFollow}
+                                />
+                            </div>
+                        )
+            }
         </div>
     );
 }

@@ -79,13 +79,16 @@
     border-left: 3px solid var(--success-color);
 }
 
-.settings-nav {
+.settings-nav
+{
     display: flex;
     justify-content: center;
     gap: 16px;
     margin-bottom: 32px;
 }
-.settings-nav button {
+
+.settings-nav button
+{
     background: none;
     border: none;
     font-size: 16px;
@@ -96,8 +99,9 @@
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
 }
-.settings-nav button.active,
-.settings-nav button:hover {
+
+.settings-nav button.active, .settings-nav button:hover
+{
     background: var(--primary-color);
     color: #fff;
 }

@@ -1,24 +1,24 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getUserProfile, followUser, unfollowUser } from '../../services/profileService';
-import { getUserPosts } from '../../services/postService';
-import { getOrCreateConversation } from '../../services/chatService';
-import Post from '../../components/Post';
-import UserList from '../../components/UserList';
-import './styles.css';
+import {useState, useEffect} from "react";
+import {useParams, useNavigate} from "react-router-dom";
+import {getUserProfile, followUser, unfollowUser} from "../../services/profileService";
+import {getUserPosts} from "../../services/postService";
+import {getOrCreateConversation} from "../../services/chatService";
+import Post from "../../components/Post";
+import UserList from "../../components/UserList";
+import "./styles.css";
 
 const Profile = () =>
 {
-    const { userId } = useParams();
+    const {userId} = useParams();
     const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+    const [error, setError] = useState("");
     const [showFollowers, setShowFollowers] = useState(false);
     const [showFollowing, setShowFollowing] = useState(false);
     const [isCurrentUser, setIsCurrentUser] = useState(false);
-    const currentUserId = localStorage.getItem('userId');
+    const currentUserId = localStorage.getItem("userId");
 
     useEffect(() =>
     {
@@ -32,24 +32,24 @@ const Profile = () =>
         setLoading(true);
         try
         {
-            setIsCurrentUser(userId === 'me' || userId === currentUserId);
+            setIsCurrentUser(userId === "me" || userId === currentUserId);
 
-            const profileResponse = await getUserProfile(userId === 'me' ? currentUserId : userId);
-            if (profileResponse.status === 'ok' && profileResponse.data)
+            const profileResponse = await getUserProfile(userId === "me" ? currentUserId : userId);
+            if (profileResponse.status === "ok" && profileResponse.data)
             {
                 setProfile(profileResponse.data);
-                const actualUserId = profileResponse.data.id;
-                const postsResponse = await getUserPosts(actualUserId);
-                if (postsResponse.status === 'ok')
+                const postsResponse = await getUserPosts(profileResponse.data.id);
+
+                if (postsResponse.status === "ok")
                     setPosts(postsResponse.data || []);
             }
             else
-                setError('Failed to load profile');
+                setError("Failed to load profile");
         }
-        catch (err)
+        catch (error)
         {
-            setError('Error loading profile');
-            console.error(err);
+            setError("Error loading profile");
+            throw error;
         }
         finally
         {
@@ -62,7 +62,7 @@ const Profile = () =>
         if (!profile)
             return;
 
-        if (window.confirm(`Are you sure you want to follow ${ profile.username }?`))
+        if (window.confirm(`Are you sure you want to follow ${profile.username}?`))
         {
             try
             {
@@ -71,7 +71,7 @@ const Profile = () =>
             }
             catch (error)
             {
-                console.error('Error following user:', error);
+                throw error;
             }
         }
     };
@@ -81,7 +81,7 @@ const Profile = () =>
         if (!profile)
             return;
 
-        if (window.confirm(`Are you sure you want to unfollow ${ profile.username }?`))
+        if (window.confirm(`Are you sure you want to unfollow ${profile.username}?`))
         {
             try
             {
@@ -90,7 +90,7 @@ const Profile = () =>
             }
             catch (error)
             {
-                console.error('Error unfollowing user:', error);
+                throw error;
             }
         }
     };
@@ -103,18 +103,19 @@ const Profile = () =>
         try
         {
             const response = await getOrCreateConversation(profile.id);
-            if (response.status === 'ok' && response.data)
+            if (response.status === "ok" && response.data)
                 navigate(`/chat/${ response.data.id }`);
         }
         catch (error)
         {
-            console.error('Error creating conversation:', error);
+            throw error;
         }
     };
 
     const checkIsFollowing = () =>
     {
-        if (!profile || !currentUserId) return false;
+        if (!profile || !currentUserId)
+            return false;
         return profile.followers.some(follower => follower.id.toString() === currentUserId);
     };
 
@@ -127,131 +128,167 @@ const Profile = () =>
 
     return (
         <div className="profile-page">
-            { loading ? (
-                <div className="loading">
-                    <div className="loading-spinner"></div>
-                </div>
-            ) : error ? (
-                <div className="error-container">
-                    <p className="error-message">{ error }</p>
-                    <button onClick={ fetchProfileAndPosts } className="btn btn-primary">
-                        Try Again
-                    </button>
-                </div>
-            ) : profile ? (
-                <div className="profile-container">
-                    <div className="profile-header">
-                        <div className="profile-avatar-container">
-                            <img
-                                src={ profile.avatar || '/default_avatar.png' }
-                                alt={ profile.username }
-                                className="profile-avatar"
-                            />
+            {
+                loading ?
+                    (
+                        <div className="loading">
+                            <div className="loading-spinner"></div>
                         </div>
-
-                        <div className="profile-info">
-                            <h1 className="profile-username">{ profile.username }</h1>
-                            <p className="profile-email">{ profile.email }</p>
-
-                            { profile.introduction && (
-                                <p className="profile-introduction">{ profile.introduction }</p>
-                            ) }
-
-                            <div className="profile-stats">
-                                <div className="stat-item" onClick={ () => setShowFollowers(true) }>
-                                    <span className="stat-number">{ profile.followers.length }</span>
-                                    <span className="stat-label">Followers</span>
-                                </div>
-                                <div className="stat-item" onClick={ () => setShowFollowing(true) }>
-                                    <span className="stat-number">{ profile.followings.length }</span>
-                                    <span className="stat-label">Following</span>
-                                </div>
-                                <div className="stat-item">
-                                    <span className="stat-number">{ posts.length }</span>
-                                    <span className="stat-label">Posts</span>
-                                </div>
+                    ) :
+                    error ?
+                        (
+                            <div className="error-container">
+                                <p className="error-message">{error}</p>
+                                <button onClick={fetchProfileAndPosts} className="btn btn-primary">
+                                    Try Again
+                                </button>
                             </div>
+                        ) :
+                        profile ?
+                            (
+                                <div className="profile-container">
+                                    <div className="profile-header">
+                                        <div className="profile-avatar-container">
+                                            <img
+                                                src={profile.avatar || "/default_avatar.png"}
+                                                alt={profile.username}
+                                                className="profile-avatar"
+                                            />
+                                        </div>
 
-                            { !isCurrentUser && (
-                                <div className="profile-actions">
-                                    { checkIsFollowing() ? (
-                                        <button className="btn btn-secondary" onClick={ handleUnfollow }>
-                                            Unfollow
-                                        </button>
-                                    ) : (
-                                        <button className="btn btn-primary" onClick={ handleFollow }>
-                                            { checkIsFollower() ? 'Follow back' : 'Follow' }
-                                        </button>
-                                    ) }
-                                    <button className="btn btn-secondary" onClick={ handleMessage }>
-                                        Message
-                                    </button>
-                                </div>
-                            ) }
+                                        <div className="profile-info">
+                                            <h1 className="profile-username">{profile.username}</h1>
+                                            <p className="profile-email">{profile.email}</p>
 
-                            { isCurrentUser && (
-                                <div className="profile-actions">
-                                    <button
-                                        className="btn btn-primary"
-                                        onClick={ () => navigate('/settings') }
-                                    >
-                                        Edit Profile
-                                    </button>
-                                </div>
-                            ) }
-                        </div>
-                    </div>
+                                            {
+                                                profile.introduction &&
+                                                (
+                                                    <p className="profile-introduction">{profile.introduction}</p>
+                                                )
+                                            }
 
-                    <div className="profile-content">
-                        <h2 className="section-title">Posts</h2>
-                        { posts.length > 0 ? (
-                            <div className="posts-container">
-                                { posts.map(post => (
-                                    <Post key={ post.id } post={ post } refreshPosts={ fetchProfileAndPosts } />
-                                )) }
-                            </div>
-                        ) : (
-                            <div className="empty-posts">
-                                <p>No posts yet.</p>
-                            </div>
-                        ) }
-                    </div>
+                                            <div className="profile-stats">
+                                                <div className="stat-item" onClick={() => setShowFollowers(true)}>
+                                                    <span className="stat-number">{profile.followers.length}</span>
+                                                    <span className="stat-label">Followers</span>
+                                                </div>
+                                                <div className="stat-item" onClick={() => setShowFollowing(true)}>
+                                                    <span className="stat-number">{profile.followings.length}</span>
+                                                    <span className="stat-label">Following</span>
+                                                </div>
+                                                <div className="stat-item">
+                                                    <span className="stat-number">{posts.length}</span>
+                                                    <span className="stat-label">Posts</span>
+                                                </div>
+                                            </div>
 
-                    { showFollowers && (
-                        <div className="modal-overlay">
-                            <div className="modal">
-                                <div className="modal-header">
-                                    <h3>Followers</h3>
-                                    <button className="modal-close" onClick={ () => setShowFollowers(false) }>×</button>
-                                </div>
-                                <div className="modal-body">
-                                    <UserList
-                                        users={ profile.followers }
-                                        emptyMessage="No followers yet."
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    ) }
+                                            {
+                                                !isCurrentUser &&
+                                                (
+                                                    <div className="profile-actions">
+                                                        {
+                                                            checkIsFollowing() ?
+                                                                (
+                                                                    <button className="btn btn-secondary" onClick={handleUnfollow}>
+                                                                        Unfollow
+                                                                    </button>
+                                                                ) :
+                                                                (
+                                                                    <button className="btn btn-primary" onClick={handleFollow}>
+                                                                        {
+                                                                            checkIsFollower() ? "Follow back" : "Follow"
+                                                                        }
+                                                                    </button>
+                                                                )
+                                                        }
+                                                        <button className="btn btn-secondary" onClick={handleMessage}>
+                                                            Message
+                                                        </button>
+                                                    </div>
+                                                )
+                                            }
 
-                    { showFollowing && (
-                        <div className="modal-overlay">
-                            <div className="modal">
-                                <div className="modal-header">
-                                    <h3>Following</h3>
-                                    <button className="modal-close" onClick={ () => setShowFollowing(false) }>×</button>
+                                            {
+                                                isCurrentUser &&
+                                                (
+                                                    <div className="profile-actions">
+                                                        <button
+                                                            className="btn btn-primary"
+                                                        onClick={() => navigate("/settings")}
+                                                        >
+                                                            Edit Profile
+                                                        </button>
+                                                    </div>
+                                                )
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div className="profile-content">
+                                        <h2 className="section-title">Posts</h2>
+                                        {
+                                            posts.length > 0 ?
+                                                (
+                                                    <div className="posts-container">
+                                                        {
+                                                            posts.map(post =>
+                                                                (
+                                                                    <Post key={post.id} post={post} refreshPosts={fetchProfileAndPosts} />
+                                                                )
+                                                            )
+                                                        }
+                                                    </div>
+                                                ) :
+                                                (
+                                                    <div className="empty-posts">
+                                                        <p>No posts yet.</p>
+                                                    </div>
+                                                )
+                                        }
+                                    </div>
+
+                                    {
+                                        showFollowers &&
+                                        (
+                                            <div className="modal-overlay">
+                                                <div className="modal">
+                                                    <div className="modal-header">
+                                                        <h3>Followers</h3>
+                                                        <button className="modal-close" onClick={() => setShowFollowers(false)}>×</button>
+                                                    </div>
+                                                    <div className="modal-body">
+                                                        <UserList
+                                                            users={profile.followers}
+                                                            emptyMessage="No followers yet."
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )
+                                    }
+
+                                    {
+                                        showFollowing &&
+                                        (
+                                            <div className="modal-overlay">
+                                                <div className="modal">
+                                                    <div className="modal-header">
+                                                        <h3>Following</h3>
+                                                        <button className="modal-close" onClick={() => setShowFollowing(false)}>×</button>
+                                                    </div>
+                                                    <div className="modal-body">
+                                                        <UserList
+                                                            users={profile.followings}
+                                                            emptyMessage="Not following anyone yet."
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )
+                                    }
                                 </div>
-                                <div className="modal-body">
-                                    <UserList
-                                        users={ profile.followings }
-                                        emptyMessage="Not following anyone yet."
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    ) }
-                </div>
-            ) : null }
+                            ) : null
+            }
         </div>
     );
 }

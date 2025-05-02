@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { getAllNotifications, markNotificationAsRead } from '../../services/notificationService';
-import {getAllConversations, getUnreadConversations} from '../../services/chatService';
-import './styles.css';
+import {useState, useEffect, useRef} from "react";
+import {Link, useNavigate} from "react-router-dom";
+import {getAllNotifications, markNotificationAsRead} from "../../services/notificationService";
+import {getAllConversations, getUnreadConversations} from "../../services/chatService";
+import "./styles.css";
 
 const Header = () =>
 {
@@ -11,7 +11,7 @@ const Header = () =>
     const [notifications, setNotifications] = useState([]);
     const [conversations, setConversations] = useState([]);
     const [notificationCount, setNotificationCount] = useState(0);
-    const [unreadConversations, setUnreadConversations] = useState({ count: 0, ids: [] });
+    const [unreadConversations, setUnreadConversations] = useState({count: 0, ids: []});
     const notificationsRef = useRef(null);
     const messagesRef = useRef(null);
     const navigate = useNavigate();
@@ -38,6 +38,7 @@ const Header = () =>
         {
             if (notificationsRef.current && !notificationsRef.current.contains(event.target))
                 setShowNotifications(false);
+
             if (messagesRef.current && !messagesRef.current.contains(event.target))
                 setShowMessages(false);
         }
@@ -51,7 +52,7 @@ const Header = () =>
         try
         {
             const response = await getAllNotifications();
-            if (response.status === 'ok' && response.data)
+            if (response.status === "ok" && response.data)
             {
                 setNotifications(response.data);
                 setNotificationCount(response.data.filter(n => !n.is_read).length);
@@ -59,7 +60,7 @@ const Header = () =>
         }
         catch (error)
         {
-            console.error('Error fetching notifications:', error);
+            throw error;
         }
     };
 
@@ -68,12 +69,12 @@ const Header = () =>
         try
         {
             const response = await getAllConversations();
-            if (response.status === 'ok' && response.data)
+            if (response.status === "ok" && response.data)
                 setConversations(response.data);
         }
         catch (error)
         {
-            console.error('Error fetching conversations:', error);
+            throw error;
         }
     };
 
@@ -82,14 +83,14 @@ const Header = () =>
         try
         {
             const response = await getUnreadConversations();
-            if (response.status === 'ok' && response.data)
+            if (response.status === "ok" && response.data)
                 setUnreadConversations(response.data);
             else
-                setUnreadConversations({ count: 0, ids: [] });
+                setUnreadConversations({count: 0, ids: []});
         }
         catch (error)
         {
-            setUnreadConversations({ count: 0, ids: [] });
+            setUnreadConversations({count: 0, ids: []});
         }
     };
 
@@ -101,155 +102,206 @@ const Header = () =>
             {
                 await markNotificationAsRead(notification.id);
                 setNotifications(notifications.map(n =>
-                    n.id === notification.id ? { ...n, is_read: true } : n
+                    n.id === notification.id ? {...n, is_read: true} : n
                 ));
                 setNotificationCount(prev => Math.max(0, prev - 1));
             }
 
-            if (notification.type === 'follow')
-                navigate(`/profile/${ notification.actor.id }`);
-            else if (notification.type === 'like' || notification.type === 'comment')
-                navigate(`/post/${ notification.post_id }`);
+            if (notification.type === "follow")
+                navigate(`/profile/${notification.actor.id}`);
+            else if (notification.type === "like" || notification.type === "comment")
+                navigate(`/post/${notification.post_id}`);
             setShowNotifications(false);
         }
         catch (error)
         {
-            console.error('Error marking notification as read:', error);
+            throw error;
         }
     };
 
     const handleMessageClick = (conversation) =>
     {
-        navigate(`/chat/${ conversation.id }`);
+        navigate(`/chat/${conversation.id}`);
         setShowMessages(false);
 
         if (unreadConversations.ids.includes(conversation.id))
         {
-            setUnreadConversations(prev => (
-                {
-                    count: Math.max(0, prev.count - 1),
-                    ids: prev.ids.filter(id => id !== conversation.id)
-                }
-            ));
+            setUnreadConversations(prev =>
+                (
+                    {
+                        count: Math.max(0, prev.count - 1),
+                        ids: prev.ids.filter(id => id !== conversation.id)
+                    }
+                )
+            );
         }
     };
 
     const handleLogout = () =>
     {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
+        localStorage.removeItem("token");
+        window.location.href = "/login";
     };
 
     return (
         <header className="header">
             <div className="header-container">
                 <Link to="/" className="header-logo">
-                    <img src="/logo.jfif" alt="Social Network" />
-                    <span>SocialApp</span>
+                    <img src="/logo.jfif" alt="ITIS Network" />
+                    <span>ITIS Network</span>
                 </Link>
 
                 <div className="header-right">
-                    <div className="header-notifications" ref={ notificationsRef }>
+                    <div className="header-notifications" ref={notificationsRef}>
                         <button
                             className="notification-button"
-                            onClick={ () => setShowNotifications(!showNotifications) }
+                            onClick={() => setShowNotifications(!showNotifications)}
                         >
                             <i className="notification-icon">🔔</i>
                             <span className="notification-label">Notifications</span>
-                            { notificationCount > 0 && <span className="notification-badge">{ notificationCount }</span> }
+                            {
+                                notificationCount > 0 && <span className="notification-badge">{notificationCount}</span>
+                            }
                         </button>
 
-                        { showNotifications && (
-                            <div className="dropdown-menu notifications-dropdown">
-                                <h3>Notifications</h3>
-                                { notifications.length > 0 ? (
-                                    <ul className="notifications-list">
-                                        { notifications.map(notification => (
-                                            <li
-                                                key={ notification.id }
-                                                className={ `notification-item ${ !notification.is_read ? 'unread' : '' }` }
-                                                onClick={ () => handleNotificationClick(notification) }
-                                            >
-                                                { notification.actor && (
-                                                    <img
-                                                        src={ notification.actor.avatar || '/default_avatar.png' }
-                                                        alt={ notification.actor.username }
-                                                        className="notification-avatar"
-                                                    />
-                                                ) }
-                                                <div className="notification-content">
-                                                    <p>
-                                                        { notification.actor ? (
-                                                            <strong>{ notification.actor.username }</strong>
-                                                        ) : (
-                                                            'Someone'
-                                                        ) }{ ' ' }
-                                                        { notification.type === 'follow' && 'started following you' }
-                                                        { notification.type === 'like' && 'liked your post' }
-                                                        { notification.type === 'comment' && 'commented on your post' }
-                                                    </p>
-                                                    <span className="notification-time">
-                                                        { new Date(notification.created_at).toLocaleDateString() }
-                                                    </span>
-                                                </div>
-                                                { !notification.is_read && <span className="unread-indicator"></span> }
-                                            </li>
-                                        )) }
-                                    </ul>
-                                ) : (
-                                    <p className="empty-message">No notifications yet</p>
-                                ) }
-                            </div>
-                        ) }
+                        {
+                            showNotifications &&
+                            (
+                                <div className="dropdown-menu notifications-dropdown">
+                                    <h3>Notifications</h3>
+                                    {
+                                        notifications.length > 0 ?
+                                            (
+                                                <ul className="notifications-list">
+                                                    {
+                                                        notifications.map(notification =>
+                                                            (
+                                                                <li
+                                                                    key={notification.id}
+                                                                    className={`notification-item ${!notification.is_read ? "unread" : "" }`}
+                                                                    onClick={() => handleNotificationClick(notification)}
+                                                                >
+                                                                    {
+                                                                        notification.actor &&
+                                                                        (
+                                                                            <img
+                                                                                src={notification.actor.avatar || "/default_avatar.png"}
+                                                                                alt={notification.actor.username}
+                                                                                className="notification-avatar"
+                                                                            />
+                                                                        )
+                                                                    }
+                                                                    <div className="notification-content">
+                                                                        <p>
+                                                                            {
+                                                                                notification.actor ?
+                                                                                    (
+                                                                                        <strong>{notification.actor.username}</strong>
+                                                                                    ) :
+                                                                                    (
+                                                                                        "Someone"
+                                                                                    )
+                                                                            }
+                                                                            {" "}
+                                                                            {
+                                                                                notification.type === "follow" && "started following you"
+                                                                            }
+                                                                            {
+                                                                                notification.type === "like" && "liked your post"
+                                                                            }
+                                                                            {
+                                                                                notification.type === "comment" && "commented on your post"
+                                                                            }
+                                                                        </p>
+                                                                        <span className="notification-time">
+                                                                            {
+                                                                                new Date(notification.created_at).toLocaleDateString()
+                                                                            }
+                                                                        </span>
+                                                                    </div>
+                                                                    {
+                                                                        !notification.is_read && <span className="unread-indicator"></span>
+                                                                    }
+                                                                </li>
+                                                            )
+                                                        )
+                                                    }
+                                                </ul>
+                                            ) :
+                                            (
+                                                <p className="empty-message">No notifications yet</p>
+                                            )
+                                    }
+                                </div>
+                            )
+                        }
                     </div>
 
-                    <div className="header-messages" ref={ messagesRef }>
+                    <div className="header-messages" ref={messagesRef}>
                         <button
                             className="message-button"
-                            onClick={ () => setShowMessages(!showMessages) }
+                            onClick={() => setShowMessages(!showMessages)}
                         >
                             <i className="message-icon">✉️</i>
                             <span className="message-label">Messages</span>
-                            { unreadConversations.count > 0 && (
-                                <span className="notification-badge">{ unreadConversations.count }</span>
-                            ) }
+                            {
+                                unreadConversations.count > 0 &&
+                                (
+                                    <span className="notification-badge">{unreadConversations.count}</span>
+                                )
+                            }
                         </button>
 
-                        { showMessages && (
-                            <div className="dropdown-menu messages-dropdown">
-                                <h3>Messages</h3>
-                                { conversations.length > 0 ? (
-                                    <ul className="messages-list">
-                                        { conversations.map(conversation => (
-                                            <li
-                                                key={ conversation.id }
-                                                className={ `message-item${ unreadConversations.ids.includes(conversation.id) ? ' unread' : '' }` }
-                                                onClick={ () => handleMessageClick(conversation) }
-                                            >
-                                                <img
-                                                    src={ conversation.participants[0].avatar || '/default_avatar.png' }
-                                                    alt={ conversation.participants[0].username }
-                                                    className="message-avatar"
-                                                />
-                                                <div className="message-content">
-                                                    <p className="message-username">{ conversation.participants[0].username }</p>
-                                                    <span className="message-time">
-                                                        { new Date(conversation.created_at).toLocaleDateString() }
-                                                    </span>
-                                                </div>
-                                                { unreadConversations.ids.includes(conversation.id) && <span className="unread-indicator"></span> }
-                                            </li>
-                                        )) }
-                                    </ul>
-                                ) : (
-                                    <p className="empty-message">No conversations yet</p>
-                                ) }
-                                <Link to="/chat" className="view-all-link">View all messages</Link>
-                            </div>
-                        ) }
+                        {
+                            showMessages &&
+                            (
+                                <div className="dropdown-menu messages-dropdown">
+                                    <h3>Messages</h3>
+                                    {
+                                        conversations.length > 0 ?
+                                            (
+                                                <ul className="messages-list">
+                                                    {
+                                                        conversations.map(conversation =>
+                                                            (
+                                                                <li
+                                                                    key={conversation.id}
+                                                                    className={`message-item${unreadConversations.ids.includes(conversation.id) ? " unread" : "" }` }
+                                                                    onClick={() => handleMessageClick(conversation)}
+                                                                >
+                                                                    <img
+                                                                        src={conversation.participants[0].avatar || "/default_avatar.png"}
+                                                                        alt={conversation.participants[0].username}
+                                                                        className="message-avatar"
+                                                                    />
+                                                                    <div className="message-content">
+                                                                        <p className="message-username">{conversation.participants[0].username}</p>
+                                                                        <span className="message-time">
+                                                                        {
+                                                                            new Date(conversation.created_at).toLocaleDateString()
+                                                                        }
+                                                                        </span>
+                                                                    </div>
+                                                                    {
+                                                                        unreadConversations.ids.includes(conversation.id) && <span className="unread-indicator"></span>
+                                                                    }
+                                                                </li>
+                                                            )
+                                                        )
+                                                    }
+                                                </ul>
+                                            ) :
+                                            (
+                                                <p className="empty-message">No conversations yet</p>
+                                            )
+                                    }
+                                    <Link to="/chat" className="view-all-link">View all messages</Link>
+                                </div>
+                            )
+                        }
                     </div>
 
-                    <button onClick={ handleLogout } className="logout-button">
+                    <button onClick={handleLogout} className="logout-button">
                         Logout
                     </button>
                 </div>

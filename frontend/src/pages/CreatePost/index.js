@@ -1,6 +1,6 @@
-import { useNavigate } from 'react-router-dom';
-import CreatePostForm from '../../components/CreatePostForm';
-import './styles.css';
+import {useNavigate} from "react-router-dom";
+import CreatePostForm from "../../components/CreatePostForm";
+import "./styles.css";
 
 const CreatePost = () =>
 {
@@ -8,7 +8,7 @@ const CreatePost = () =>
 
     const handlePostCreated = () =>
     {
-        navigate('/');
+        navigate("/");
     };
 
     return (

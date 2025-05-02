@@ -1,30 +1,31 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { register, uploadImage } from '../../../services/authService';
-import './styles.css';
+import {useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
+import {register, uploadImage} from "../../../services/authService";
+import "./styles.css";
 
 const Register = () =>
 {
     const [formData, setFormData] = useState(
         {
-            username: '',
-            email: '',
-            password: '',
-            confirmPassword: '',
-            introduction: '',
+            username: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+            introduction: "",
             avatar: null
         }
     );
-    const [fileName, setFileName] = useState('');
-    const [previewUrl, setPreviewUrl] = useState('');
-    const [error, setError] = useState('');
+    const [fileName, setFileName] = useState("");
+    const [previewUrl, setPreviewUrl] = useState("");
+    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) =>
     {
-        const { name, value } = e.target;
-        setFormData(
+        const {name, value} = e.target;
+        setFormData
+        (
             {
                 ...formData,
                 [name]: value
@@ -46,10 +47,11 @@ const Register = () =>
             };
             reader.readAsDataURL(file);
 
-            setFormData(
+            setFormData
+            (
                 {
-                ...formData,
-                avatar: file
+                    ...formData,
+                    avatar: file
                 }
             );
         }
@@ -58,14 +60,13 @@ const Register = () =>
     const handleSubmit = async (e) =>
     {
         e.preventDefault();
-        setError('');
+        setError("");
 
         if (formData.password !== formData.confirmPassword)
         {
             setError("Passwords don't match");
             return;
         }
-
         setLoading(true);
 
         try
@@ -77,7 +78,8 @@ const Register = () =>
                 avatarUrl = imageResponse.data;
             }
 
-            await register(
+            await register
+            (
                 {
                     username: formData.username,
                     email: formData.email,
@@ -86,11 +88,11 @@ const Register = () =>
                     introduction: formData.introduction
                 }
             );
-            navigate('/login');
+            navigate("/login");
         }
-        catch (err)
+        catch (error)
         {
-            setError(err.response?.data?.message || 'Registration failed');
+            setError(error.response?.data?.message || "Registration failed");
         }
         finally
         {
@@ -139,15 +141,18 @@ const Register = () =>
                             />
                         </label>
                         <span className="file-name">{fileName}</span>
-                        {previewUrl && (
-                            <div style={{ marginTop: '8px' }}>
-                                <img
-                                    src={previewUrl}
-                                    alt="Avatar preview"
-                                    style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '50%' }}
-                                />
-                            </div>
-                        )}
+                        {
+                            previewUrl &&
+                            (
+                                <div style={{marginTop: "8px"}}>
+                                    <img
+                                        src={previewUrl}
+                                        alt="Avatar preview"
+                                        style={{width: "100px", height: "100px", objectFit: "cover", borderRadius: "50%"}}
+                                    />
+                                </div>
+                            )
+                        }
                     </div>
                     <input
                         type="password"
@@ -167,9 +172,13 @@ const Register = () =>
                         onChange={handleChange}
                         required
                     />
-                    {error && <div className="error-message">{error}</div>}
+                    {
+                        error && <div className="error-message">{error}</div>
+                    }
                     <button type="submit" className="btn btn-primary" disabled={loading}>
-                        {loading ? <div className="loading-spinner"></div> : 'Register'}
+                        {
+                            loading ? <div className="loading-spinner"></div> : "Register"
+                        }
                     </button>
                 </form>
                 <p className="auth-footer">
