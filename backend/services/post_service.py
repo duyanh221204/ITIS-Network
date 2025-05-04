@@ -49,9 +49,9 @@ class PostService:
     def get_posts(self, query) -> BaseResponse:
         posts = query.options(
             selectinload(Post.author),
-            selectinload(Post.likes).joinedload(Like.liker),
-            selectinload(Post.comments).joinedload(Comment.author)
-        ).all()
+            selectinload(Post.likes).selectinload(Like.liker),
+            selectinload(Post.comments).selectinload(Comment.author)
+        ).order_by(Post.created_at.desc()).all()
 
         data = []
         for post in posts:
