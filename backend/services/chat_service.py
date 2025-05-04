@@ -1,8 +1,8 @@
-from sqlalchemy.orm import Session
+from sqlalchemy import distinct
+from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.sql import func
 
-from models import User
-from models.conversation import Conversation
-from models.message import Message
+from models import Conversation, Message
 from schemas.base_response import BaseResponse
 from schemas.chat import ConversationSchema, MessageSchema, MessageCreateSchema, UnreadConversationsSchema
 from schemas.user import UserMiniSchema
@@ -22,6 +22,9 @@ class ChatService:
         conversation = db.query(Conversation).filter(
             Conversation.user1_id == user1_id,
             Conversation.user2_id == user2_id
+        ).options(
+            selectinload(Conversation.user1),
+            selectinload(Conversation.user2)
         ).first()
 
         if conversation is None:
@@ -34,10 +37,7 @@ class ChatService:
             id=conversation.id,
             participants=[
                 UserMiniSchema.model_validate(
-                    db.query(User).filter(
-                        User.id.in_([conversation.user1_id, conversation.user2_id]),
-                        User.id != user_id
-                    ).first()
+                    conversation.user1 if conversation.user1_id != user_id else conversation.user2
                 )
             ],
             created_at=conversation.created_at
@@ -47,15 +47,17 @@ class ChatService:
     def get_all_conversations(self, db: Session, user_id: int) -> BaseResponse:
         conversations = db.query(Conversation).filter(
             (Conversation.user1_id == user_id) | (Conversation.user2_id == user_id)
+        ).options(
+            selectinload(Conversation.user1),
+            selectinload(Conversation.user2)
         ).order_by(Conversation.created_at.desc()).all()
 
         data = []
         for cnv in conversations:
-            other_user_id = cnv.user2_id if cnv.user1_id == user_id else cnv.user1_id
-            other_user = db.query(User).filter(User.id == other_user_id).first()
+            other = cnv.user1 if cnv.user2_id == user_id else cnv.user2
             data.append(ConversationSchema(
                 id=cnv.id,
-                participants=[UserMiniSchema.model_validate(other_user)],
+                participants=[UserMiniSchema.model_validate(other)],
                 created_at=cnv.created_at
             ))
 
@@ -68,18 +70,20 @@ class ChatService:
 
         messages = db.query(Message).filter(
             Message.conversation_id == conversation_id
+        ).options(
+            selectinload(Message.sender)
         ).order_by(Message.created_at).all()
 
-        data = []
-        for msg in messages:
-            sender = db.query(User).filter(User.id == msg.sender_id).first()
-            data.append(MessageSchema(
+        data = [
+            MessageSchema(
                 id=msg.id,
                 content=msg.content,
                 is_read=msg.is_read,
                 created_at=msg.created_at,
-                sender=UserMiniSchema.model_validate(sender)
-            ))
+                sender=UserMiniSchema.model_validate(msg.sender)
+            )
+            for msg in messages
+        ]
 
         return BaseResponse(message="Messages retrieved", data=data)
 
@@ -108,22 +112,20 @@ class ChatService:
         return BaseResponse(message="Conversation marked as read")
 
     def unread_count(self, db: Session, user_id: int) -> BaseResponse:
-        unread_messages = db.query(Message).filter(
+        count = db.query(func.count(distinct(Message.conversation_id))).filter(
             Message.sender_id != user_id,
             Message.is_read == False
-        ).all()
-
-        mark_cnv = set()
-        cnv_ids = []
-
-        for msg in unread_messages:
-            cnv_id = msg.conversation_id
-            if cnv_id not in mark_cnv:
-                mark_cnv.add(cnv_id)
-                cnv_ids.append(cnv_id)
+        ).scalar()
+        
+        ids = [
+            result[0] for result in db.query(distinct(Message.conversation_id)).filter(
+                Message.sender_id != user_id,
+                Message.is_read == False
+            ).all()
+        ]
 
         response = UnreadConversationsSchema(
-            count=len(cnv_ids),
-            ids=cnv_ids
+            count=count,
+            ids=ids
         )
         return BaseResponse(message="Unread conversations retrieved successfully", data=response)

@@ -1,9 +1,10 @@
+from fastapi import APIRouter, Depends
+
 from schemas.user import UserPasswordUpdateSchema
 from services.user_service import get_user_service
 from utils.configs.authentication import get_current_user
 from utils.configs.database import get_db
 from utils.exceptions import raise_error
-from fastapi import APIRouter, Depends
 
 router = APIRouter(
     prefix="/api/users",

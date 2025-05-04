@@ -1,10 +1,11 @@
-from schemas.post import PostBaseSchema
-from schemas.comment import CommentBaseSchema
-from services.post_service import get_post_service
-from utils.configs.database import get_db
-from utils.configs.authentication import get_current_user
-from utils.exceptions import raise_error
 from fastapi import APIRouter, Depends
+
+from schemas.comment import CommentBaseSchema
+from schemas.post import PostBaseSchema
+from services.post_service import get_post_service
+from utils.configs.authentication import get_current_user
+from utils.configs.database import get_db
+from utils.exceptions import raise_error
 
 router = APIRouter(
     prefix="/api/posts",

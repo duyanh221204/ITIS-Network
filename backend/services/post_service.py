@@ -1,15 +1,13 @@
-from models.follow import Follow
-from models.notification import Notification, NotificationType
-from models.post import Post
-from models.like import Like
-from models.comment import Comment
-from models.user import User
-from schemas.post import PostBaseSchema, PostInfoSchema
+from sqlalchemy import select
+from sqlalchemy.orm import Session, selectinload
+
+from models import Post, Like, Comment, Follow, Notification
+from models.notification import NotificationType
 from schemas.base_response import BaseResponse
-from schemas.comment import CommentBaseSchema, CommentInfoSchema
+from schemas.comment import CommentInfoSchema, CommentBaseSchema
 from schemas.like import LikeSchema
+from schemas.post import PostBaseSchema, PostInfoSchema
 from utils.exceptions import raise_error
-from sqlalchemy.orm import Session
 
 
 def get_post_service():
@@ -47,160 +45,62 @@ class PostService:
         db.delete(post_db)
         db.commit()
         return BaseResponse(message="Delete post successfully")
+    
+    def get_posts(self, query) -> BaseResponse:
+        posts = query.options(
+            selectinload(Post.author),
+            selectinload(Post.likes).joinedload(Like.liker),
+            selectinload(Post.comments).joinedload(Comment.author)
+        ).all()
+
+        data = []
+        for post in posts:
+            likes = [
+                LikeSchema(
+                    id=like.id,
+                    liker_id=like.liker_id,
+                    liker_name=like.liker.username,
+                    liker_avatar=like.liker.avatar,
+                    post_id=post.id
+                )
+                for like in post.likes
+            ]
+
+            comments = [
+                CommentInfoSchema(
+                    id=comment.id,
+                    content=comment.content,
+                    author_id=comment.author_id,
+                    author_name=comment.author.username,
+                    author_avatar=comment.author.avatar,
+                    post_id=post.id
+                )
+                for comment in post.comments
+            ]
+
+            data.append(PostInfoSchema(
+                id=post.id,
+                content=post.content,
+                image=post.image,
+                author_id=post.author_id,
+                author_name=post.author.username,
+                author_avatar=post.author.avatar,
+                created_at=post.created_at,
+                likes=likes,
+                comments=comments
+            ))
+
+        return BaseResponse(message="Posts retrieved successfully", data=data)
 
     def get_all_posts(self, db: Session) -> BaseResponse:
-        posts_db = db.query(Post).all()
-        posts_data = []
-
-        for post in posts_db:
-            likes = db.query(Like).filter(Like.post_id == post.id).all()
-            likes_data = []
-            for like in likes:
-                liker = db.query(User).filter(User.id == like.liker_id).first()
-                likes_data.append(
-                    LikeSchema(
-                        id=like.id,
-                        liker_id=liker.id,
-                        liker_name=liker.username,
-                        liker_avatar=liker.avatar,
-                        post_id=post.id
-                    )
-                )
-
-            comments = db.query(Comment).filter(Comment.post_id == post.id).all()
-            comments_data = []
-            for comment in comments:
-                author = db.query(User).filter(User.id == comment.author_id).first()
-                comments_data.append(
-                    CommentInfoSchema(
-                        id=comment.id,
-                        content=comment.content,
-                        author_id=author.id,
-                        author_name=author.username,
-                        author_avatar=author.avatar,
-                        post_id=post.id
-                    )
-                )
-            
-            author = db.query(User).filter(User.id == post.author_id).first()
-            posts_data.append(
-                PostInfoSchema(
-                    id=post.id,
-                    content=post.content,
-                    image=post.image,
-                    author_id=author.id,
-                    author_name=author.username,
-                    author_avatar=author.avatar,
-                    created_at=post.created_at,
-                    likes=likes_data,
-                    comments=comments_data
-                )
-            )
-        return BaseResponse(message="Posts retrieved successfully", data=posts_data)
+        return self.get_posts(db.query(Post))
 
     def get_posts_by_followings(self, db: Session, user_id: int) -> BaseResponse:
-        followed = db.query(Follow.followed_id).filter(Follow.follower_id == user_id).all()
-        followed_ids = [result[0] for result in followed]
-
-        posts_db = db.query(Post).filter(Post.author_id.in_(followed_ids)).all()
-        posts_data = []
-        for post in posts_db:
-            likes = db.query(Like).filter(Like.post_id == post.id).all()
-            likes_data = []
-            for like in likes:
-                liker = db.query(User).filter(User.id == like.liker_id).first()
-                likes_data.append(
-                    LikeSchema(
-                        id=like.id,
-                        liker_id=liker.id,
-                        liker_name=liker.username,
-                        liker_avatar=liker.avatar,
-                        post_id=post.id
-                    )
-                )
-
-            comments = db.query(Comment).filter(Comment.post_id == post.id).all()
-            comments_data = []
-            for comment in comments:
-                author = db.query(User).filter(User.id == comment.author_id).first()
-                comments_data.append(
-                    CommentInfoSchema(
-                        id=comment.id,
-                        content=comment.content,
-                        author_id=author.id,
-                        author_name=author.username,
-                        author_avatar=author.avatar,
-                        post_id=post.id
-                    )
-                )
-
-            author = db.query(User).filter(User.id == post.author_id).first()
-            posts_data.append(
-                PostInfoSchema(
-                    id=post.id,
-                    content=post.content,
-                    image=post.image,
-                    author_id=author.id,
-                    author_name=author.username,
-                    author_avatar=author.avatar,
-                    created_at=post.created_at,
-                    likes=likes_data,
-                    comments=comments_data
-                )
-            )
-        return BaseResponse(message="Posts retrieved successfully", data=posts_data)
-
+        followings = select(Follow.followed_id).where(Follow.follower_id == user_id)
+        return self.get_posts(db.query(Post).filter(Post.author_id.in_(followings)))
 
     def get_posts_by_user(self, db: Session, user_id: int) -> BaseResponse:
-        posts_db = db.query(Post).filter(Post.author_id == user_id).all()
-        posts_author = db.query(User).filter(User.id == user_id).first()
-        posts_data = []
-
-        for post in posts_db:
-            likes = db.query(Like).filter(Like.post_id == post.id).all()
-            likes_data = []
-            for like in likes:
-                liker = db.query(User).filter(User.id == like.liker_id).first()
-                likes_data.append(
-                    LikeSchema(
-                        id=like.id,
-                        liker_id=liker.id,
-                        liker_name=liker.username,
-                        liker_avatar=liker.avatar,
-                        post_id=post.id
-                    )
-                )
-
-            comments = db.query(Comment).filter(Comment.post_id == post.id).all()
-            comments_data = []
-            for comment in comments:
-                author = db.query(User).filter(User.id == comment.author_id).first()
-                comments_data.append(
-                    CommentInfoSchema(
-                        id=comment.id,
-                        content=comment.content,
-                        author_id=author.id,
-                        author_name=author.username,
-                        author_avatar=author.avatar,
-                        post_id=post.id
-                    )
-                )
-
-            posts_data.append(
-                PostInfoSchema(
-                    id=post.id,
-                    content=post.content,
-                    image=post.image,
-                    author_id=posts_author.id,
-                    author_name=posts_author.username,
-                    author_avatar=posts_author.avatar,
-                    created_at=post.created_at,
-                    likes=likes_data,
-                    comments=comments_data
-                )
-            )
-        return BaseResponse(message="Posts retrieved successfully", data=posts_data)
-
+        return self.get_posts(db.query(Post).filter(Post.author_id == user_id))
 
     def like_post(self, db: Session, liker_id: int, post_id: int) -> BaseResponse:
         new_like = Like(

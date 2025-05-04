@@ -1,4 +1,5 @@
 from sqlalchemy import Integer, Column, ForeignKey, DATETIME
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from utils.configs.database import Base
@@ -11,3 +12,15 @@ class Conversation(Base):
     user1_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     user2_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     created_at = Column(DATETIME, server_default=func.now(), nullable=False)
+
+    user1 = relationship(
+        "User",
+        foreign_keys=[user1_id],
+        back_populates="conversations_user1"
+    )
+    user2 = relationship(
+        "User",
+        foreign_keys=[user2_id],
+        back_populates="conversations_user2"
+    )
+    messages = relationship("Message", back_populates="conversation")

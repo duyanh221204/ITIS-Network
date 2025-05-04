@@ -1,11 +1,12 @@
-from models.notification import Notification, NotificationType
-from models.user import User
-from models.follow import Follow
-from schemas.user import UserPasswordUpdateSchema, UserMiniSchema
-from schemas.base_response import BaseResponse
-from utils.configs.authentication import hash_password, verify_password
-from utils.exceptions import raise_error
+from sqlalchemy import select
 from sqlalchemy.orm import Session
+
+from models import User, Follow, Notification
+from models.notification import NotificationType
+from schemas.base_response import BaseResponse
+from schemas.user import UserPasswordUpdateSchema, UserMiniSchema
+from utils.configs.authentication import verify_password, hash_password
+from utils.exceptions import raise_error
 
 
 def get_user_service():
@@ -54,9 +55,11 @@ class UserService:
         return BaseResponse(message="Successfully unfollow user")
 
     def get_not_followed_users(self, db: Session, user_id: int) -> BaseResponse:
-        followed = db.query(Follow.followed_id).filter(Follow.follower_id == user_id).all()
-        exclude_ids = {result[0] for result in followed} | {user_id}
-        users = db.query(User).filter(User.id.notin_(exclude_ids)).all()
+        followings = select(Follow.followed_id).where(Follow.follower_id == user_id)
+        users = db.query(User).filter(
+            User.id.notin_(followings),
+            User.id != user_id
+        ).all()
 
         data = [UserMiniSchema.model_validate(user) for user in users]
         return BaseResponse(message="Users retrieved successfully", data=data)
