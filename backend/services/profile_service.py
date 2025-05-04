@@ -1,9 +1,9 @@
-from models.user import User
-from models.follow import Follow
-from schemas.user import UserProfileSchema, UserInfoUpdateSchema, UserMiniSchema
-from schemas.base_response import BaseResponse
-from utils.exceptions import raise_error
 from sqlalchemy.orm import Session
+
+from models import User, Follow
+from schemas.base_response import BaseResponse
+from schemas.user import UserMiniSchema, UserProfileSchema, UserInfoUpdateSchema
+from utils.exceptions import raise_error
 
 
 def get_profile_service():
@@ -17,15 +17,17 @@ class ProfileService:
     def get_info(self, db: Session, user_id: int) -> BaseResponse:
         user_db = db.query(User).filter(User.id == user_id).first()
 
-        followers = db.query(Follow.follower_id).filter(Follow.followed_id == user_id).all()
-        followers_id = [result[0] for result in followers]
-        followers_users = db.query(User).filter(User.id.in_(followers_id)).all()
-        followers_list = [UserMiniSchema.model_validate(user) for user in followers_users]
+        followers_list = db.query(User).join(
+            Follow,
+            Follow.follower_id == User.id
+        ).filter(Follow.followed_id == user_id).all()
+        followers = [UserMiniSchema.model_validate(follower) for follower in followers_list]
 
-        followings = db.query(Follow.followed_id).filter(Follow.follower_id == user_id).all()
-        followings_id = [result[0] for result in followings]
-        followings_users = db.query(User).filter(User.id.in_(followings_id)).all()
-        followings_list = [UserMiniSchema.model_validate(user) for user in followings_users]
+        followings_list = db.query(User).join(
+            Follow,
+            Follow.followed_id == User.id
+        ).filter(Follow.follower_id == user_id).all()
+        followings = [UserMiniSchema.model_validate(following) for following in followings_list]
 
         user_info = UserProfileSchema(
             id=user_id,
@@ -33,8 +35,8 @@ class ProfileService:
             email=user_db.email,
             avatar=user_db.avatar,
             introduction=user_db.introduction,
-            followers=followers_list,
-            followings=followings_list
+            followers=followers,
+            followings=followings
         )
         return BaseResponse(message="Get user's info successfully", data=user_info)
 

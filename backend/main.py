@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from utils.configs.database import Base, engine
+
 from models import *
-from routers import user, authentication, image, post, profile, notification, chat
+from routers import authentication, post, profile, user, notification, chat, image
+from utils.configs.database import Base, engine
 
 app = FastAPI()
 

@@ -1,6 +1,7 @@
+from fastapi import APIRouter, UploadFile, File, Depends
+
 from services.image_service import get_image_service
 from utils.exceptions import raise_error
-from fastapi import APIRouter, Depends, UploadFile, File
 
 router = APIRouter(
     prefix="/api/images",

@@ -1,12 +1,14 @@
+import os
+from datetime import timedelta, datetime, timezone
+
+from dotenv import load_dotenv
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+from jose import jwt
+from passlib.context import CryptContext
+
 from schemas.base_response import BaseResponse
 from utils.exceptions import raise_error
-from fastapi import Depends
-from passlib.context import CryptContext
-from jose import jwt
-from fastapi.security import OAuth2PasswordBearer
-from datetime import datetime, timedelta, timezone
-from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
@@ -14,7 +16,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl="api/auth/login")
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
 def hash_password(plain_password: str):

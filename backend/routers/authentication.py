@@ -1,7 +1,8 @@
-from schemas.user import UserRegisterSchema
-from services.authentication_service import get_auth_service
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
+
+from schemas.user import UserRegisterSchema
+from services.authentication_service import get_auth_service
 from utils.configs.database import get_db
 from utils.exceptions import raise_error
 
