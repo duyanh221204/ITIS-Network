@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {register, uploadImage} from "../../../services/authService";
-import "./styles.css";
+import "../styles.css";
 
 const Register = () =>
 {
@@ -25,12 +25,12 @@ const Register = () =>
     {
         const {name, value} = e.target;
         setFormData
-        (
-            {
-                ...formData,
-                [name]: value
-            }
-        );
+            (
+                {
+                    ...formData,
+                    [name]: value
+                }
+            );
     };
 
     const handleFileChange = (e) =>
@@ -48,12 +48,12 @@ const Register = () =>
             reader.readAsDataURL(file);
 
             setFormData
-            (
-                {
-                    ...formData,
-                    avatar: file
-                }
-            );
+                (
+                    {
+                        ...formData,
+                        avatar: file
+                    }
+                );
         }
     };
 
@@ -62,6 +62,11 @@ const Register = () =>
         e.preventDefault();
         setError("");
 
+        if (formData.password.length < 8)
+        {
+            setError("Password must be at least 8 characters.");
+            return;
+        }
         if (formData.password !== formData.confirmPassword)
         {
             setError("Passwords don't match");
@@ -78,21 +83,32 @@ const Register = () =>
                 avatarUrl = imageResponse.data;
             }
 
-            await register
-            (
-                {
-                    username: formData.username,
-                    email: formData.email,
-                    password: formData.password,
-                    avatar: avatarUrl,
-                    introduction: formData.introduction
-                }
-            );
-            navigate("/login");
+            const response = await register
+                (
+                    {
+                        username: formData.username,
+                        email: formData.email,
+                        password: formData.password,
+                        avatar: avatarUrl,
+                        introduction: formData.introduction
+                    }
+                );
+            if (response && response.status === "ok")
+                navigate("/verify-otp",
+                    {
+                        state:
+                            {
+                                email: formData.email,
+                                type: "register"
+                            }
+                    }
+                );
+            else
+                setError(response?.message || "Registration failed");
         }
         catch (error)
         {
-            setError(error.response?.data?.message || "Registration failed");
+            setError(error.response?.data?.message || error.message || "Registration failed");
         }
         finally
         {
@@ -103,6 +119,7 @@ const Register = () =>
     return (
         <div className="auth-container">
             <div className="auth-box">
+                <img src="/logo.jfif" alt="Logo" className="auth-logo" />
                 <h2>Register</h2>
                 <form onSubmit={handleSubmit}>
                     <input

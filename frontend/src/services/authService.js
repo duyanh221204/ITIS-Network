@@ -4,16 +4,17 @@ import qs from "qs";
 export const login = async (username, password) =>
 {
     const response = await api.post("/auth/login",
-        qs.stringify(
+        qs.stringify
+        (
             {
                 username,
-                password,
+                password
             }
         ),
         {
-            headers: 
+            headers:
                 {
-                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Content-Type": "application/x-www-form-urlencoded"
                 }
         }
     );
@@ -34,8 +35,25 @@ export const uploadImage = async (file) =>
         {
             headers:
                 {
-                    "Content-Type": "multipart/form-data",
-                },
+                    "Content-Type": "multipart/form-data"
+                }
+        }
+    );
+    return response.data;
+};
+
+export const sendOtp = async (email) =>
+{
+    const response = await api.post("/auth/otp", {email});
+    return response.data;
+};
+
+export const resetPassword = async (email, newPassword) =>
+{
+    const response = await api.put("/auth/reset-password",
+        {
+            email,
+            new_password: newPassword
         }
     );
     return response.data;

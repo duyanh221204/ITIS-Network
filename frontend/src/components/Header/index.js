@@ -175,55 +175,57 @@ const Header = () =>
                                                 <ul className="notifications-list">
                                                     {
                                                         notifications.map(notification =>
-                                                            (
-                                                                <li
-                                                                    key={notification.id}
-                                                                    className={`notification-item ${!notification.is_read ? "unread" : "" }`}
-                                                                    onClick={() => handleNotificationClick(notification)}
-                                                                >
-                                                                    {
-                                                                        notification.actor &&
-                                                                        (
-                                                                            <img
-                                                                                src={notification.actor.avatar || "/default_avatar.png"}
-                                                                                alt={notification.actor.username}
-                                                                                className="notification-avatar"
-                                                                            />
-                                                                        )
-                                                                    }
-                                                                    <div className="notification-content">
-                                                                        <p>
-                                                                            {
-                                                                                notification.actor ?
-                                                                                    (
-                                                                                        <strong>{notification.actor.username}</strong>
-                                                                                    ) :
-                                                                                    (
-                                                                                        "Someone"
-                                                                                    )
-                                                                            }
-                                                                            {" "}
-                                                                            {
-                                                                                notification.type === "follow" && "started following you"
-                                                                            }
-                                                                            {
-                                                                                notification.type === "like" && "liked your post"
-                                                                            }
-                                                                            {
-                                                                                notification.type === "comment" && "commented on your post"
-                                                                            }
-                                                                        </p>
-                                                                        <span className="notification-time">
-                                                                            {
-                                                                                new Date(notification.created_at).toLocaleDateString()
-                                                                            }
-                                                                        </span>
-                                                                    </div>
-                                                                    {
-                                                                        !notification.is_read && <span className="unread-indicator"></span>
-                                                                    }
-                                                                </li>
-                                                            )
+                                                        (
+                                                            <li
+                                                                key={notification.id}
+                                                                className={`notification-item ${!notification.is_read ? "unread" : ""}`}
+                                                                onClick={() => handleNotificationClick(notification)}
+                                                            >
+                                                                {
+                                                                    notification.actor &&
+                                                                    (
+                                                                        <img
+                                                                            src={notification.actor.avatar || "/default_avatar.png"}
+                                                                            alt={notification.actor.username}
+                                                                            className="notification-avatar"
+                                                                        />
+                                                                    )
+                                                                }
+                                                                <div className="notification-content">
+                                                                    <p>
+                                                                        {
+                                                                            notification.actor ?
+                                                                                (
+                                                                                    <strong>{notification.actor.username}</strong>
+                                                                                ) :
+                                                                                (
+                                                                                    "Someone"
+                                                                                )
+                                                                        }
+                                                                        {
+                                                                            " "
+                                                                        }
+                                                                        {
+                                                                            notification.type === "follow" && "started following you"
+                                                                        }
+                                                                        {
+                                                                            notification.type === "like" && "liked your post"
+                                                                        }
+                                                                        {
+                                                                            notification.type === "comment" && "commented on your post"
+                                                                        }
+                                                                    </p>
+                                                                    <span className="notification-time">
+                                                                        {
+                                                                            new Date(notification.created_at).toLocaleDateString()
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                                {
+                                                                    !notification.is_read && <span className="unread-indicator"></span>
+                                                                }
+                                                            </li>
+                                                        )
                                                         )
                                                     }
                                                 </ul>
@@ -245,7 +247,7 @@ const Header = () =>
                             <i className="message-icon">✉️</i>
                             <span className="message-label">Messages</span>
                             {
-                                unreadConversations.count > 0 &&
+                                unreadConversations.count > 0 && unreadConversations.ids && unreadConversations.ids.length > 0 && conversations.length > 0 &&
                                 (
                                     <span className="notification-badge">{unreadConversations.count}</span>
                                 )
@@ -263,30 +265,30 @@ const Header = () =>
                                                 <ul className="messages-list">
                                                     {
                                                         conversations.map(conversation =>
-                                                            (
-                                                                <li
-                                                                    key={conversation.id}
-                                                                    className={`message-item${unreadConversations.ids.includes(conversation.id) ? " unread" : "" }` }
-                                                                    onClick={() => handleMessageClick(conversation)}
-                                                                >
-                                                                    <img
-                                                                        src={conversation.participants[0].avatar || "/default_avatar.png"}
-                                                                        alt={conversation.participants[0].username}
-                                                                        className="message-avatar"
-                                                                    />
-                                                                    <div className="message-content">
-                                                                        <p className="message-username">{conversation.participants[0].username}</p>
-                                                                        <span className="message-time">
+                                                        (
+                                                            <li
+                                                                key={conversation.id}
+                                                                className={`message-item${unreadConversations.ids.includes(conversation.id) ? " unread" : ""}`}
+                                                                onClick={() => handleMessageClick(conversation)}
+                                                            >
+                                                                <img
+                                                                    src={conversation.participants[0].avatar || "/default_avatar.png"}
+                                                                    alt={conversation.participants[0].username}
+                                                                    className="message-avatar"
+                                                                />
+                                                                <div className="message-content">
+                                                                    <p className="message-username">{conversation.participants[0].username}</p>
+                                                                    <span className="message-time">
                                                                         {
                                                                             new Date(conversation.created_at).toLocaleDateString()
                                                                         }
-                                                                        </span>
-                                                                    </div>
-                                                                    {
-                                                                        unreadConversations.ids.includes(conversation.id) && <span className="unread-indicator"></span>
-                                                                    }
-                                                                </li>
-                                                            )
+                                                                    </span>
+                                                                </div>
+                                                                {
+                                                                    unreadConversations.ids.includes(conversation.id) && <span className="unread-indicator"></span>
+                                                                }
+                                                            </li>
+                                                        )
                                                         )
                                                     }
                                                 </ul>

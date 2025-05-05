@@ -64,3 +64,13 @@
     font-size: 12px;
     color: var(--secondary-color);
 }
+
+.auth-logo
+{
+    display: block;
+    margin: 0 auto 18px auto;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+}

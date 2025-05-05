@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {login} from "../../../services/authService";
-import "./styles.css";
+import "../styles.css";
 
 const Login = ({setIsAuthenticated}) =>
 {
@@ -44,6 +44,7 @@ const Login = ({setIsAuthenticated}) =>
     return (
         <div className="auth-container">
             <div className="auth-box">
+                <img src="/logo.jfif" alt="Logo" className="auth-logo" />
                 <h2>Login</h2>
                 <form onSubmit={handleSubmit}>
                     <input
@@ -73,6 +74,8 @@ const Login = ({setIsAuthenticated}) =>
                 </form>
                 <p className="auth-footer">
                     Don't have an account? <Link to="/register">Register</Link>
+                    <br />
+                    <Link to="/forgot-password" className="forgot-link">Forgot your password?</Link>
                 </p>
             </div>
         </div>
