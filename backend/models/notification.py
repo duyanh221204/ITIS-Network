@@ -1,8 +1,7 @@
 import enum
 
-from sqlalchemy import Column, Integer, DATETIME, Boolean, ForeignKey, Enum
+from sqlalchemy import Column, Integer, DATETIME, Boolean, ForeignKey, Enum, func
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
 
 from utils.configs.database import Base
 
@@ -24,17 +23,6 @@ class Notification(Base):
     receiver_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), index=True)
 
-    actor = relationship(
-        "User",
-        foreign_keys=[actor_id],
-        back_populates="notifications_sent"
-    )
-    receiver = relationship(
-        "User",
-        foreign_keys=[receiver_id],
-        back_populates="notifications_received"
-    )
-    post = relationship(
-        "Post",
-        back_populates="notifications"
-    )
+    actor = relationship("User", foreign_keys=[actor_id], back_populates="notifications_sent")
+    receiver = relationship("User", foreign_keys=[receiver_id], back_populates="notifications_received")
+    post = relationship("Post", back_populates="notifications")

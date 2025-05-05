@@ -1,6 +1,5 @@
-from sqlalchemy import distinct
+from sqlalchemy import func, distinct
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy.sql import func
 
 from models import Conversation, Message
 from schemas.base_response import BaseResponse
@@ -124,8 +123,8 @@ class ChatService:
             ).all()
         ]
 
-        response = UnreadConversationsSchema(
+        data = UnreadConversationsSchema(
             count=count,
             ids=ids
         )
-        return BaseResponse(message="Unread conversations retrieved successfully", data=response)
+        return BaseResponse(message="Unread conversations retrieved successfully", data=data)

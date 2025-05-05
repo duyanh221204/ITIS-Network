@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
+from schemas.authentication import OTPRequestSchema, PasswordResetSchema
 from schemas.user import UserRegisterSchema
 from services.authentication_service import get_auth_service
 from utils.configs.database import get_db
@@ -34,3 +35,26 @@ def login_for_access_token(
         return auth_service.authenticate_user(data, db)
     except Exception:
         return raise_error(1003)
+    
+    
+@router.post("/otp")
+def send_otp(
+        data: OTPRequestSchema,
+        auth_service=Depends(get_auth_service)
+):
+    try:
+        return auth_service.send_otp(data)
+    except Exception:
+        return raise_error(5000)
+
+
+@router.put("/reset-password")
+def reset_password(
+        data: PasswordResetSchema,
+        db=Depends(get_db),
+        auth_service=Depends(get_auth_service)
+):
+    try:
+        return auth_service.reset_password(data, db)
+    except Exception:
+        return raise_error(1007)
