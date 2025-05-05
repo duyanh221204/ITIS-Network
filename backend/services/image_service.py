@@ -1,20 +1,10 @@
-import os
+import utils.configs.cloudinary
 
-import cloudinary
 from cloudinary.uploader import upload
-from dotenv import load_dotenv
 from fastapi import UploadFile
 
 from schemas.base_response import BaseResponse
 from utils.exceptions import raise_error
-
-load_dotenv()
-
-cloudinary.config(
-    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.getenv("CLOUDINARY_API_KEY"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET")
-)
 
 
 def get_image_service():
