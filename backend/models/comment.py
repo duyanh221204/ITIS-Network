@@ -12,11 +12,5 @@ class Comment(Base):
     author_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
     post_id = Column(Integer, ForeignKey("posts.id"), index=True, nullable=False)
 
-    author = relationship(
-        "User",
-        back_populates="comments"
-    )
-    post = relationship(
-        "Post",
-        back_populates="comments"
-    )
+    author = relationship("User", back_populates="comments")
+    post = relationship("Post", back_populates="comments")

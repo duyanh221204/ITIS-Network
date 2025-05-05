@@ -5,7 +5,7 @@ import "./styles.css";
 
 const Chat = () =>
 {
-    const { conversationId } = useParams();
+    const {conversationId} = useParams();
     const navigate = useNavigate();
     const [conversations, setConversations] = useState([]);
     const [messages, setMessages] = useState([]);
@@ -127,8 +127,7 @@ const Chat = () =>
 
             await markConversationAsRead(conversationId);
 
-            setConversations
-            (prevConversations =>
+            setConversations(prevConversations =>
                 prevConversations.map(conv =>
                     conv.id === parseInt(conversationId) ? {...conv, hasUnread: false} : conv
                 )
@@ -209,7 +208,7 @@ const Chat = () =>
 
     const selectConversation = (convId) =>
     {
-        navigate(`/chat/${ convId }`);
+        navigate(`/chat/${convId}`);
     };
 
     const currentConversation = conversations.find(conv => conv.id === parseInt(conversationId));
