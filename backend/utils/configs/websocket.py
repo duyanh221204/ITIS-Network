@@ -1,24 +1,27 @@
+import asyncio
+
 from fastapi import WebSocket
 
 
 class ConnectionManager:
     def __init__(self):
         self.active: dict[int, list[WebSocket]] = {}
+        self.loop: asyncio.AbstractEventLoop | None = None
 
-    async def connect(self, conversation_id: int, websocket: WebSocket):
+    async def connect(self, key: int, websocket: WebSocket):
         await websocket.accept()
-        self.active.setdefault(conversation_id, []).append(websocket)
+        self.active.setdefault(key, []).append(websocket)
 
-    def disconnect(self, conversation_id: int, websocket: WebSocket):
-        connections = self.active.get(conversation_id, [])
+    def disconnect(self, key: int, websocket: WebSocket):
+        connections = self.active.get(key, [])
         if websocket in connections:
             connections.remove(websocket)
 
             if not connections:
-                self.active.pop(conversation_id, None)
+                self.active.pop(key, None)
 
-    async def broadcast(self, conversation_id: int, message: dict):
-        for ws in self.active.get(conversation_id, []):
+    async def broadcast(self, key: int, message: dict):
+        for ws in self.active.get(key, []):
             await ws.send_json(message)
 
 

@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, BackgroundTasks
 
+from models.notification import NotificationType
 from schemas.user import UserPasswordUpdateSchema
 from services.user_service import get_user_service
 from utils.configs.authentication import get_current_user
@@ -20,20 +21,35 @@ def update_password(
         user_service=Depends(get_user_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return user_service.update_password(data, db, user["id"])
     except Exception:
         return raise_error(1007)
 
 
 @router.post("/follow/{user_id}")
-def follow_user(
+async def follow_user(
         user_id: int,
+        background_tasks: BackgroundTasks,
         db=Depends(get_db),
         user=Depends(get_current_user),
         user_service=Depends(get_user_service)
 ):
     try:
-        return user_service.follow_user(db, user["id"], user_id)
+        if user is None:
+            return raise_error(1005)
+
+        response = user_service.follow_user(db, user["id"], user_id)
+        background_tasks.add_task(
+            user_service.notification_service.notify,
+            db,
+            user["id"],
+            user_id,
+            NotificationType.FOLLOW,
+            None
+        )
+        return response
     except Exception:
         return raise_error(1010)
 
@@ -46,6 +62,8 @@ def unfollow_user(
         user_service=Depends(get_user_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return user_service.unfollow_user(db, user["id"], user_id)
     except Exception:
         return raise_error(1011)
@@ -58,6 +76,8 @@ def get_not_followed_users(
         user_service=Depends(get_user_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return user_service.get_not_followed_users(db, user["id"])
     except Exception:
         return raise_error(1012)

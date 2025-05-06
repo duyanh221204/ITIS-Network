@@ -16,10 +16,12 @@ router = APIRouter(
 def get_info(
         user_id: int,
         db=Depends(get_db),
-        _=Depends(get_current_user),
+        user=Depends(get_current_user),
         profile_service=Depends(get_profile_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return profile_service.get_info(db, user_id)
     except Exception:
         return raise_error(1008)
@@ -33,6 +35,8 @@ def update_info(
         profile_service=Depends(get_profile_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return profile_service.update_info(data, db, user["id"])
     except Exception:
         return raise_error(1009)

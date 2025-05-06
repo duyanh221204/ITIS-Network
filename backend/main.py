@@ -1,11 +1,21 @@
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from models import *
 from routers import authentication, post, profile, user, notification, chat, image
 from utils.configs.database import Base, engine
+from utils.configs.websocket import websocket_manager
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    websocket_manager.loop = asyncio.get_running_loop()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 Base.metadata.create_all(bind=engine)
 

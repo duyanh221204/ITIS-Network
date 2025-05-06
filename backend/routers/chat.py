@@ -25,6 +25,8 @@ def get_or_create_conversation(
         chat_service=Depends(get_chat_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return chat_service.get_or_create_conversation(db, user["id"], data.user_id)
     except Exception:
         return raise_error(4000)
@@ -37,6 +39,8 @@ def get_all_conversations(
         chat_service=Depends(get_chat_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return chat_service.get_all_conversations(db, user["id"])
     except Exception:
         return raise_error(4001)
@@ -50,6 +54,8 @@ def get_all_messages(
         chat_service=Depends(get_chat_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return chat_service.get_all_messages(db, conversation_id, user["id"])
     except Exception:
         return raise_error(4002)
@@ -64,6 +70,8 @@ def send_message(
         chat_service=Depends(get_chat_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return chat_service.send_message(db, conversation_id, user["id"], data)
     except Exception:
         return raise_error(4003)
@@ -77,6 +85,8 @@ def mark_as_read(
         chat_service=Depends(get_chat_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return chat_service.mark_as_read(db, conversation_id, user["id"])
     except Exception:
         return raise_error(4004)
@@ -89,6 +99,8 @@ def unread_count(
         chat_service=Depends(get_chat_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return chat_service.unread_count(db, user["id"])
     except Exception:
         return raise_error(4005)

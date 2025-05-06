@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, BackgroundTasks
 
 from schemas.comment import CommentBaseSchema
 from schemas.post import PostBaseSchema
@@ -16,10 +16,12 @@ router = APIRouter(
 @router.get("/all")
 def get_all_posts(
         db=Depends(get_db),
-        _=Depends(get_current_user),
+        user=Depends(get_current_user),
         post_service=Depends(get_post_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return post_service.get_all_posts(db)
     except Exception:
         return raise_error(2005)
@@ -32,6 +34,8 @@ def get_posts_by_followings(
         post_service=Depends(get_post_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return post_service.get_posts_by_followings(db, user["id"])
     except Exception:
         return raise_error(2005)
@@ -41,10 +45,12 @@ def get_posts_by_followings(
 def get_posts_by_user(
         user_id: int,
         db=Depends(get_db),
-        _=Depends(get_current_user),
+        user=Depends(get_current_user),
         post_service=Depends(get_post_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return post_service.get_posts_by_user(db, user_id)
     except Exception:
         return raise_error(2005)
@@ -58,6 +64,8 @@ def create_post(
         post_service=Depends(get_post_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return post_service.create_post(data, db, user["id"])
     except Exception:
         return raise_error(2002)
@@ -68,10 +76,12 @@ def update_post_by_id(
         data: PostBaseSchema,
         post_id: int,
         db=Depends(get_db),
-        _=Depends(get_current_user),
+        user=Depends(get_current_user),
         post_service=Depends(get_post_service),
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return post_service.update_post_by_id(data, db, post_id)
     except Exception:
         return raise_error(2003)
@@ -81,23 +91,29 @@ def update_post_by_id(
 def delete_post_by_id(
         post_id: int,
         db=Depends(get_db),
-        _=Depends(get_current_user),
+        user=Depends(get_current_user),
         post_service=Depends(get_post_service),
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return post_service.delete_post_by_id(db, post_id)
     except Exception:
         return raise_error(2004)
 
 
 @router.post("/like/{post_id}")
-def like_post(
+async def like_post(
         post_id: int,
+        background_tasks: BackgroundTasks,
         db=Depends(get_db),
         user=Depends(get_current_user),
         post_service=Depends(get_post_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
+
         return post_service.like_post(db, user["id"], post_id)
     except Exception:
         return raise_error(2007)
@@ -111,6 +127,8 @@ def unlike_post(
         post_service=Depends(get_post_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return post_service.unlike_post(db, user["id"], post_id)
     except Exception:
         return raise_error(2008)
@@ -124,6 +142,8 @@ def create_comment(
         post_service=Depends(get_post_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return post_service.create_comment(data, db, user["id"])
     except Exception:
         return raise_error(2009)
@@ -137,6 +157,8 @@ def delete_comment(
         post_service=Depends(get_post_service)
 ):
     try:
+        if user is None:
+            return raise_error(1005)
         return post_service.delete_comment(db, comment_id, user["id"])
     except Exception:
         return raise_error(2010)
