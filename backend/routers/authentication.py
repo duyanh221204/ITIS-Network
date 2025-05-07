@@ -14,7 +14,7 @@ router = APIRouter(
 
 
 @router.post("/register")
-def register(
+async def register(
         data: UserRegisterSchema,
         db=Depends(get_db),
         auth_service=Depends(get_auth_service)
@@ -26,7 +26,7 @@ def register(
 
 
 @router.post("/login")
-def login_for_access_token(
+async def login_for_access_token(
         data: OAuth2PasswordRequestForm = Depends(),
         db=Depends(get_db),
         auth_service=Depends(get_auth_service)
@@ -38,7 +38,7 @@ def login_for_access_token(
     
     
 @router.post("/otp")
-def send_otp(
+async def send_otp(
         data: OTPRequestSchema,
         auth_service=Depends(get_auth_service)
 ):
@@ -49,7 +49,7 @@ def send_otp(
 
 
 @router.put("/reset-password")
-def reset_password(
+async def reset_password(
         data: PasswordResetSchema,
         db=Depends(get_db),
         auth_service=Depends(get_auth_service)

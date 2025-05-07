@@ -10,7 +10,7 @@ router = APIRouter(
 
 
 @router.post("/upload")
-def upload_image(
+async def upload_image(
         data: UploadFile = File(...),
         image_service=Depends(get_image_service)
 ):

@@ -1,3 +1,4 @@
+from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
@@ -7,17 +8,24 @@ from schemas.base_response import BaseResponse
 from schemas.comment import CommentInfoSchema, CommentBaseSchema
 from schemas.like import LikeSchema
 from schemas.post import PostBaseSchema, PostInfoSchema
+from services.notification_service import get_notification_service
 from utils.exceptions import raise_error
 
 
-def get_post_service():
+def get_post_service(notification_service=Depends(get_notification_service)):
     try:
-        yield PostService()
+        yield PostService(notification_service)
     finally:
         pass
 
 
 class PostService:
+    def __init__(self, notification_service):
+        self.notification_service = notification_service
+
+    def get_post_author_id(self, db: Session, post_id: int) -> int:
+        return db.query(Post).filter(Post.id == post_id).first().author_id
+
     def create_post(self, data: PostBaseSchema, db: Session, user_id: int) -> BaseResponse:
         if data.content.strip() == "" and data.image == "":
             return raise_error(2001)
@@ -109,18 +117,11 @@ class PostService:
         )
 
         db.add(new_like)
-
-        post = db.query(Post).filter(Post.id == post_id).first()
-        if post.author_id != liker_id:
-            db.add(Notification(
-                type=NotificationType.LIKE,
-                actor_id=liker_id,
-                receiver_id=post.author_id,
-                post_id=post_id
-            ))
-
         db.commit()
         db.refresh(new_like)
+
+        post = db.query(Post).filter(Post.id == post_id).first()
+        self.notification_service.notify(db, liker_id, post.author_id, NotificationType.LIKE, post_id)
         return BaseResponse(message="Like post successfully")
 
     def unlike_post(self, db: Session, liker_id: int, post_id: int) -> BaseResponse:
@@ -139,18 +140,11 @@ class PostService:
 
         new_comment = Comment(**data.model_dump(), author_id=author_id)
         db.add(new_comment)
-
-        post = db.query(Post).filter(Post.id == data.post_id).first()
-        if post.author_id != author_id:
-            db.add(Notification(
-                type=NotificationType.COMMENT,
-                actor_id=author_id,
-                receiver_id=post.author_id,
-                post_id=data.post_id
-            ))
-
         db.commit()
         db.refresh(new_comment)
+        
+        post = db.query(Post).filter(Post.id == data.post_id).first()
+        self.notification_service.notify(db, author_id, post.author_id, NotificationType.COMMENT, data.post_id)
         return BaseResponse(message="Create comment successfully")
 
     def delete_comment(self, db: Session, comment_id: int, author_id: int) -> BaseResponse:

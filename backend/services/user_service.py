@@ -1,22 +1,27 @@
+from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from models import User, Follow, Notification
+from models import User, Follow
 from models.notification import NotificationType
 from schemas.base_response import BaseResponse
 from schemas.user import UserPasswordUpdateSchema, UserMiniSchema
+from services.notification_service import get_notification_service
 from utils.configs.authentication import verify_password, hash_password
 from utils.exceptions import raise_error
 
 
-def get_user_service():
+def get_user_service(notification_service=Depends(get_notification_service)):
     try:
-        yield UserService()
+        yield UserService(notification_service)
     finally:
         pass
 
 
 class UserService:
+    def __init__(self, notification_service):
+        self.notification_service = notification_service
+
     def update_password(self, data: UserPasswordUpdateSchema, db: Session, user_id: int) -> BaseResponse:
         user_db = db.query(User).filter(User.id == user_id).first()
         if not verify_password(data.current_password, user_db.hashed_password):
@@ -33,15 +38,10 @@ class UserService:
             followed_id=followed_id
         )
         db.add(new_follow)
-        
-        db.add(Notification(
-            type=NotificationType.FOLLOW,
-            actor_id=follower_id,
-            receiver_id=followed_id
-        ))
-
         db.commit()
         db.refresh(new_follow)
+
+        self.notification_service.notify(db, follower_id, followed_id, NotificationType.FOLLOW, None)
         return BaseResponse(message="Successfully follow user")
 
     def unfollow_user(self, db: Session, follower_id: int, followed_id: int) -> BaseResponse:
