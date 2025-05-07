@@ -27,7 +27,7 @@ async def get_info(
         return raise_error(1008)
 
 
-@router.put("/update_info")
+@router.put("/update-info")
 async def update_info(
         data: UserInfoUpdateSchema,
         db=Depends(get_db),
