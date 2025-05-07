@@ -1,6 +1,9 @@
 import asyncio
 
-from fastapi import WebSocket
+from fastapi import WebSocket, status
+from jose import jwt
+
+from utils.configs.authentication import SECRET_KEY, ALGORITHM
 
 
 class ConnectionManager:
@@ -26,3 +29,17 @@ class ConnectionManager:
 
 
 websocket_manager = ConnectionManager()
+
+
+async def get_sender(token: str, websocket: WebSocket) -> int | None:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        user_id: int = payload.get("id")
+
+        if user_id is None or username is None:
+            return await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+    except Exception:
+        return await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+
+    return user_id

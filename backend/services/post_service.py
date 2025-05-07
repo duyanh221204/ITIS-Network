@@ -23,6 +23,9 @@ class PostService:
     def __init__(self, notification_service):
         self.notification_service = notification_service
 
+    def get_post_author_id(self, db: Session, post_id: int) -> int:
+        return db.query(Post).filter(Post.id == post_id).first().author_id
+
     def create_post(self, data: PostBaseSchema, db: Session, user_id: int) -> BaseResponse:
         if data.content.strip() == "" and data.image == "":
             return raise_error(2001)

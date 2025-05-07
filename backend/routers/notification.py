@@ -1,10 +1,9 @@
-from fastapi import APIRouter, Depends, WebSocket, Query, status
-from jose import jwt
+from fastapi import APIRouter, Depends, WebSocket, Query
 
 from services.notification_service import get_notification_service
-from utils.configs.authentication import get_current_user, SECRET_KEY, ALGORITHM
+from utils.configs.authentication import get_current_user
 from utils.configs.database import get_db, SessionLocal
-from utils.configs.websocket import websocket_manager
+from utils.configs.websocket import websocket_manager, get_sender
 from utils.exceptions import raise_error
 
 router = APIRouter(
@@ -14,7 +13,7 @@ router = APIRouter(
 
 
 @router.get("/all")
-def get_all_notifications(
+async def get_all_notifications(
         db=Depends(get_db),
         user=Depends(get_current_user),
         noti_service=Depends(get_notification_service)
@@ -28,7 +27,7 @@ def get_all_notifications(
 
 
 @router.put("/{noti_id}")
-def mark_as_read(
+async def mark_as_read(
         noti_id: int,
         db=Depends(get_db),
         user=Depends(get_current_user),
@@ -48,16 +47,8 @@ async def notifications_websocket(
         token: str = Query(...),
         noti_service=Depends(get_notification_service)
 ):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        user_id: int = payload.get("id")
-
-        if user_id is None or username is None:
-            await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-            return
-    except Exception:
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+    user_id = get_sender(token, websocket)
+    if user_id is None:
         return
 
     await websocket_manager.connect(user_id, websocket)

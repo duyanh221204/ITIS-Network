@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, BackgroundTasks
 
+from models.notification import NotificationType
 from schemas.comment import CommentBaseSchema
 from schemas.post import PostBaseSchema
 from services.post_service import get_post_service
@@ -14,7 +15,7 @@ router = APIRouter(
 
 
 @router.get("/all")
-def get_all_posts(
+async def get_all_posts(
         db=Depends(get_db),
         user=Depends(get_current_user),
         post_service=Depends(get_post_service)
@@ -28,7 +29,7 @@ def get_all_posts(
 
 
 @router.get("/followings")
-def get_posts_by_followings(
+async def get_posts_by_followings(
         db=Depends(get_db),
         user=Depends(get_current_user),
         post_service=Depends(get_post_service)
@@ -42,7 +43,7 @@ def get_posts_by_followings(
 
 
 @router.get("/user/{user_id}")
-def get_posts_by_user(
+async def get_posts_by_user(
         user_id: int,
         db=Depends(get_db),
         user=Depends(get_current_user),
@@ -57,7 +58,7 @@ def get_posts_by_user(
 
 
 @router.post("/create")
-def create_post(
+async def create_post(
         data: PostBaseSchema,
         db=Depends(get_db),
         user=Depends(get_current_user),
@@ -72,7 +73,7 @@ def create_post(
 
 
 @router.put("/update/{post_id}")
-def update_post_by_id(
+async def update_post_by_id(
         data: PostBaseSchema,
         post_id: int,
         db=Depends(get_db),
@@ -88,7 +89,7 @@ def update_post_by_id(
 
 
 @router.delete("/delete/{post_id}")
-def delete_post_by_id(
+async def delete_post_by_id(
         post_id: int,
         db=Depends(get_db),
         user=Depends(get_current_user),
@@ -114,13 +115,23 @@ async def like_post(
         if user is None:
             return raise_error(1005)
 
-        return post_service.like_post(db, user["id"], post_id)
+        response = post_service.like_post(db, user["id"], post_id)
+        if response.status == "ok":
+            background_tasks.add_task(
+                post_service.notification_service.notify,
+                db,
+                user["id"],
+                post_service.get_post_author_id(db, post_id),
+                NotificationType.LIKE,
+                post_id
+            )
+        return response
     except Exception:
         return raise_error(2007)
 
 
 @router.delete("/unlike/{post_id}")
-def unlike_post(
+async def unlike_post(
         post_id: int,
         db=Depends(get_db),
         user=Depends(get_current_user),
@@ -135,8 +146,9 @@ def unlike_post(
 
 
 @router.post("/create_comment/{post_id}")
-def create_comment(
+async def create_comment(
         data: CommentBaseSchema,
+        background_tasks: BackgroundTasks,
         db=Depends(get_db),
         user=Depends(get_current_user),
         post_service=Depends(get_post_service)
@@ -144,13 +156,24 @@ def create_comment(
     try:
         if user is None:
             return raise_error(1005)
-        return post_service.create_comment(data, db, user["id"])
+
+        response = post_service.create_comment(data, db, user["id"])
+        if response.status == "ok":
+            background_tasks.add_task(
+                post_service.notification_service.notify,
+                db,
+                user["id"],
+                post_service.get_post_author_id(db, data.post_id),
+                NotificationType.COMMENT,
+                data.post_id
+            )
+        return response
     except Exception:
         return raise_error(2009)
 
 
 @router.delete("/delete_comment/{comment_id}")
-def delete_comment(
+async def delete_comment(
         comment_id: int,
         db=Depends(get_db),
         user=Depends(get_current_user),

@@ -14,7 +14,7 @@ router = APIRouter(
 
 
 @router.put("/update_password")
-def update_password(
+async def update_password(
         data: UserPasswordUpdateSchema,
         db=Depends(get_db),
         user=Depends(get_current_user),
@@ -41,21 +41,22 @@ async def follow_user(
             return raise_error(1005)
 
         response = user_service.follow_user(db, user["id"], user_id)
-        background_tasks.add_task(
-            user_service.notification_service.notify,
-            db,
-            user["id"],
-            user_id,
-            NotificationType.FOLLOW,
-            None
-        )
+        if response.status == "ok":
+            background_tasks.add_task(
+                user_service.notification_service.notify,
+                db,
+                user["id"],
+                user_id,
+                NotificationType.FOLLOW,
+                None
+            )
         return response
     except Exception:
         return raise_error(1010)
 
 
 @router.delete("/unfollow/{user_id}")
-def unfollow_user(
+async def unfollow_user(
         user_id: int,
         db=Depends(get_db),
         user=Depends(get_current_user),
@@ -70,7 +71,7 @@ def unfollow_user(
 
 
 @router.get("")
-def get_not_followed_users(
+async def get_not_followed_users(
         db=Depends(get_db),
         user=Depends(get_current_user),
         user_service=Depends(get_user_service)
