@@ -145,7 +145,7 @@ async def unlike_post(
         return raise_error(2008)
 
 
-@router.post("/create_comment/{post_id}")
+@router.post("/create-comment/{post_id}")
 async def create_comment(
         data: CommentBaseSchema,
         background_tasks: BackgroundTasks,
@@ -172,7 +172,7 @@ async def create_comment(
         return raise_error(2009)
 
 
-@router.delete("/delete_comment/{comment_id}")
+@router.delete("/delete-comment/{comment_id}")
 async def delete_comment(
         comment_id: int,
         db=Depends(get_db),

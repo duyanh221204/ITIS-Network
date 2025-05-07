@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 
-@router.put("/update_password")
+@router.put("/update-password")
 async def update_password(
         data: UserPasswordUpdateSchema,
         db=Depends(get_db),
