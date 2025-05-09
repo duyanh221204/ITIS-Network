@@ -21,7 +21,8 @@ async def register(
 ):
     try:
         return auth_service.register(data, db)
-    except Exception:
+    except Exception as e:
+        print ("Registration error:\n" + str(e))
         return raise_error(1000)
 
 
@@ -33,7 +34,8 @@ async def login_for_access_token(
 ):
     try:
         return auth_service.authenticate_user(data, db)
-    except Exception:
+    except Exception as e:
+        print ("Login error:\n" + str(e))
         return raise_error(1003)
     
     
@@ -44,7 +46,8 @@ async def send_otp(
 ):
     try:
         return auth_service.send_otp(data)
-    except Exception:
+    except Exception as e:
+        print ("Sending OTP error:\n" + str(e))
         return raise_error(5000)
 
 
@@ -56,5 +59,6 @@ async def reset_password(
 ):
     try:
         return auth_service.reset_password(data, db)
-    except Exception:
+    except Exception as e:
+        print ("Reset password error:\n" + str(e))
         return raise_error(1007)

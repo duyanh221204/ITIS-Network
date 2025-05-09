@@ -2,8 +2,7 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from models import Post, Like, Comment, Follow, Notification
-from models.notification import NotificationType
+from models import Post, Like, Comment, Follow
 from schemas.base_response import BaseResponse
 from schemas.comment import CommentInfoSchema, CommentBaseSchema
 from schemas.like import LikeSchema
@@ -119,9 +118,6 @@ class PostService:
         db.add(new_like)
         db.commit()
         db.refresh(new_like)
-
-        post = db.query(Post).filter(Post.id == post_id).first()
-        self.notification_service.notify(db, liker_id, post.author_id, NotificationType.LIKE, post_id)
         return BaseResponse(message="Like post successfully")
 
     def unlike_post(self, db: Session, liker_id: int, post_id: int) -> BaseResponse:
@@ -142,9 +138,6 @@ class PostService:
         db.add(new_comment)
         db.commit()
         db.refresh(new_comment)
-        
-        post = db.query(Post).filter(Post.id == data.post_id).first()
-        self.notification_service.notify(db, author_id, post.author_id, NotificationType.COMMENT, data.post_id)
         return BaseResponse(message="Create comment successfully")
 
     def delete_comment(self, db: Session, comment_id: int, author_id: int) -> BaseResponse:

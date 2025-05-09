@@ -1,5 +1,5 @@
-import {useState, useEffect} from "react";
-import {getAllPosts} from "../../services/postService";
+import { useState, useEffect } from "react";
+import { getAllPosts } from "../../services/postService";
 import Post from "../../components/Post";
 import "./styles.css";
 

@@ -16,5 +16,6 @@ async def upload_image(
 ):
     try:
         return image_service.upload_image(data)
-    except Exception:
+    except Exception as e:
+        print ("Uploading error:\n", str(e))
         return raise_error(2000)

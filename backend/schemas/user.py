@@ -32,7 +32,6 @@ class UserProfileSchema(UserBaseSchema):
 
 class UserInfoUpdateSchema(BaseModel):
     username: str | None = None
-    email: str | None = None
     avatar: str | None = None
     introduction: str | None = None
 

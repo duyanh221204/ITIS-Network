@@ -1,6 +1,6 @@
-import {useState, useEffect} from "react";
-import {Link} from "react-router-dom";
-import {likePost, unlikePost, createComment} from "../../services/postService";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { likePost, unlikePost, createComment } from "../../services/postService";
 import "./styles.css";
 
 const Post = ({post}) =>
@@ -121,19 +121,20 @@ const Post = ({post}) =>
             setLocalComments(comments => [...comments, tempComment]);
             setCommentText("");
 
-            const res = await createComment(
+            const response = await createComment
+            (
                 {
                     content: tempComment.content,
                     post_id: post.id
                 }
             );
-            if (res && res.data)
+            if (response.status === "ok" && response.data)
             {
                 setPendingComments(pending => pending.filter(c => c.id !== tempId));
                 setLocalComments(comments =>
                     [
                         ...comments.filter(c => c.id !== tempId),
-                        res.data
+                        response.data
                     ]
                 );
             }
@@ -159,7 +160,7 @@ const Post = ({post}) =>
     return (
         <div className="post">
             <div className="post-header">
-                <Link to={`/profile/${ post.author_id }`} className="author-info">
+                <Link to={`/profile/${post.author_id}`} className="author-info">
                     <img
                         src={post.author_avatar || "/default_avatar.png"}
                         alt={post.author_name}
@@ -190,7 +191,7 @@ const Post = ({post}) =>
 
             <div className="post-actions">
                 <button
-                    className={`post-action ${localHasLiked ? "liked" : "" }`}
+                    className={`post-action ${localHasLiked ? "liked" : ""}`}
                     onClick={handleLikeUnlike}
                 >
                     <span>{localHasLiked ? "❤️" : "🤍"}</span>
@@ -208,7 +209,7 @@ const Post = ({post}) =>
                 showLikes && localLikesList.length > 0 &&
                 (
                     <div className="modal-overlay" onClick={toggleLikes}>
-                        <div className="modal likes-modal" onClick={ e => e.stopPropagation() }>
+                        <div className="modal likes-modal" onClick={e => e.stopPropagation()}>
                             <div className="modal-header">
                                 <h4>Likes</h4>
                                 <button className="modal-close" onClick={toggleLikes}>×</button>

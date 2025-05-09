@@ -1,5 +1,3 @@
-import asyncio
-
 from sqlalchemy.orm import Session, selectinload
 
 from models import Notification
@@ -7,7 +5,6 @@ from models.notification import NotificationType
 from schemas.base_response import BaseResponse
 from schemas.notification import NotificationSchema
 from schemas.user import UserMiniSchema
-from utils.configs.websocket import websocket_manager
 from utils.exceptions import raise_error
 
 
@@ -32,39 +29,14 @@ class NotificationService:
         db.commit()
         db.refresh(noti)
 
-        data: dict = {
-            "id": noti.id,
-            "type": noti_type,
-            "is_read": noti.is_read,
-            "created_at": str(noti.created_at),
-            "actor_id": actor_id
-        }
-        if post_id is not None:
-            data["post_id"] = post_id
-        
-        if websocket_manager.loop is None:
-            asyncio.run(
-                websocket_manager.broadcast(
-                    receiver_id,
-                    {
-                        "type": "new_notification",
-                        "data": data
-                    }
-                )
-            )
-        else:
-            websocket_manager.loop.call_soon_threadsafe(
-                lambda: asyncio.create_task(
-                    websocket_manager.broadcast(
-                        receiver_id,
-                        {
-                            "type": "new_notification",
-                            "data": data
-                        }
-                    )
-                )
-            )
-        return BaseResponse(message="Notification created")
+        new_noti = db.query(Notification).options(
+            selectinload(Notification.actor)
+        ).filter(
+            Notification.id == noti.id
+        ).first()
+
+        data = NotificationSchema.model_validate(new_noti)
+        return BaseResponse(message="Notification created", data=data)
 
     def get_notifications(self, notis) -> BaseResponse:
         data = [

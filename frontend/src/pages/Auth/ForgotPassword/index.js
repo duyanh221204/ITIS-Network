@@ -1,6 +1,6 @@
-import {useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {sendOtp} from '../../../services/authService';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { sendOtp } from '../../../services/authService';
 import '../styles.css';
 
 const ForgotPassword = () =>
@@ -42,9 +42,9 @@ const ForgotPassword = () =>
                 setError(response?.message || "Failed to send OTP.");
             }
         }
-        catch (err)
+        catch (error)
         {
-            setError(err?.response?.data?.message || "Failed to send OTP.");
+            setError(error?.response?.data?.message || "Failed to send OTP.");
         }
         finally
         {

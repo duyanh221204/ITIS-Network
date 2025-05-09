@@ -1,6 +1,6 @@
-import {useState} from "react";
-import {createPost} from "../../services/postService";
-import {uploadImage} from "../../services/authService";
+import { useState } from "react";
+import { createPost } from "../../services/postService";
+import { uploadImage } from "../../services/authService";
 import "./styles.css";
 
 const CreatePostForm = ({onPostCreated}) =>

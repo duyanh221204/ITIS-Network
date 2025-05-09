@@ -42,13 +42,11 @@ class ProfileService:
 
     def update_info(self, data: UserInfoUpdateSchema, db: Session, user_id: int) -> BaseResponse:
         existing_user = db.query(User).filter(
-            (User.username == data.username) | (User.email == data.email),
+            User.username == data.username,
             User.id != user_id
         ).first()
         if existing_user is not None:
-            if existing_user.username == data.username:
-                return raise_error(1001)
-            return raise_error(1002)
+            return raise_error(1001)
 
         user_db = db.query(User).filter(User.id == user_id).first()
         _data = data.model_dump(exclude_unset=True).items()

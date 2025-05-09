@@ -1,4 +1,4 @@
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./styles.css";
 
 const UserList = ({users, title, emptyMessage, onFollowAction}) =>

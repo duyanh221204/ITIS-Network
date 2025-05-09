@@ -1,5 +1,5 @@
-import {useState, useEffect} from "react";
-import {getNotFollowedUsers, followUser} from "../../services/profileService";
+import { useState, useEffect } from "react";
+import { getNotFollowedUsers, followUser } from "../../services/profileService";
 import UserList from "../../components/UserList";
 import "./styles.css";
 

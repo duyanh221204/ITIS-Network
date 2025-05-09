@@ -145,7 +145,7 @@
 
 .sidebar.closed .create-post-btn:before
 {
-    content: '+';
+    content: "+";
     font-size: 20px;
 }
 

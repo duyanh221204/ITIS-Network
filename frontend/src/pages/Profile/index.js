@@ -1,8 +1,8 @@
-import {useState, useEffect} from "react";
-import {useParams, useNavigate} from "react-router-dom";
-import {getUserProfile, followUser, unfollowUser} from "../../services/profileService";
-import {getUserPosts} from "../../services/postService";
-import {getOrCreateConversation} from "../../services/chatService";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getUserProfile, followUser, unfollowUser } from "../../services/profileService";
+import { getUserPosts } from "../../services/postService";
+import { getOrCreateConversation } from "../../services/chatService";
 import Post from "../../components/Post";
 import UserList from "../../components/UserList";
 import "./styles.css";

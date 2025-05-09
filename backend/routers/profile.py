@@ -23,7 +23,8 @@ async def get_info(
         if user is None:
             return raise_error(1005)
         return profile_service.get_info(db, user_id)
-    except Exception:
+    except Exception as e:
+        print ("Retrieving user's info error:\n", str(e))
         return raise_error(1008)
 
 
@@ -37,6 +38,7 @@ async def update_info(
     try:
         if user is None:
             return raise_error(1005)
-        return profile_service.update_info(data, db, user["id"])
-    except Exception:
+        return profile_service.update_info(data, db, user.get("id"))
+    except Exception as e:
+        print ("Update user's info error:\n", str(e))
         return raise_error(1009)

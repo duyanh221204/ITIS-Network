@@ -7,9 +7,6 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
 
-from schemas.base_response import BaseResponse
-from utils.exceptions import raise_error
-
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -34,14 +31,16 @@ def create_access_token(data: dict, expired_delta: timedelta) -> str:
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def get_current_user(token: str = Depends(oauth2_bearer)) -> dict | BaseResponse:
+def get_current_user(token: str = Depends(oauth2_bearer)) -> dict | None:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        user_id: int = payload.get("id")
+        user_id: str = payload.get("sub")
 
-        if user_id is None or username is None:
-            return raise_error(1005)
-        return {"id": user_id, "username": username}
-    except Exception:
-        return raise_error(1005)
+        if user_id is None:
+            return None
+        return {
+            "id": int(user_id)
+        }
+    except Exception as e:
+        print ("Validating user error:\n", e)
+        return None

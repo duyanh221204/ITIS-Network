@@ -3,7 +3,6 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from models import User, Follow
-from models.notification import NotificationType
 from schemas.base_response import BaseResponse
 from schemas.user import UserPasswordUpdateSchema, UserMiniSchema
 from services.notification_service import get_notification_service
@@ -40,8 +39,6 @@ class UserService:
         db.add(new_follow)
         db.commit()
         db.refresh(new_follow)
-
-        self.notification_service.notify(db, follower_id, followed_id, NotificationType.FOLLOW, None)
         return BaseResponse(message="Successfully follow user")
 
     def unfollow_user(self, db: Session, follower_id: int, followed_id: int) -> BaseResponse:

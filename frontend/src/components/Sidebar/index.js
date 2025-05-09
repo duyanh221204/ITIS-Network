@@ -1,5 +1,5 @@
-import {useState} from "react";
-import {Link, useLocation} from "react-router-dom";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import "./styles.css";
 
 const Sidebar = () =>
@@ -46,7 +46,7 @@ const Sidebar = () =>
                                     <span>Discover People</span>
                                 </Link>
                             </li>
-                            <li className={isActive("/create-post") ? "active" : "" }>
+                            <li className={isActive("/create-post") ? "active" : ""}>
                                 <Link to="/create-post">
                                     <i className="sidebar-icon">✏️</i>
                                     <span>Create Post</span>

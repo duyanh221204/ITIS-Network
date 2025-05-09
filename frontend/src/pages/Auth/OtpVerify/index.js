@@ -1,6 +1,6 @@
-import {useState, useEffect} from "react";
-import {useLocation, useNavigate} from "react-router-dom";
-import {sendOtp} from "../../../services/authService";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { sendOtp } from "../../../services/authService";
 import "../styles.css";
 
 const OtpVerify = () =>
@@ -121,13 +121,13 @@ const OtpVerify = () =>
                 <img src="/logo.jfif" alt="Logo" className="auth-logo" />
                 <h2>Verify OTP</h2>
                 <p className="otp-instruction">Enter the 6-digit code sent to <b>{email}</b></p>
-                <form onSubmit={ handleSubmit }>
+                <form onSubmit={handleSubmit}>
                     <input
                         type="text"
                         className="input-field"
                         placeholder="Enter OTP"
-                        value={ otp }
-                        onChange={ e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6)) }
+                        value={otp}
+                        onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                         required
                     />
                     {

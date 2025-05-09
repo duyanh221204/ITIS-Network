@@ -8,13 +8,13 @@ export const getUserProfile = async (userId) =>
 
 export const updateUserInfo = async (userData) =>
 {
-    const response = await api.put("/profile/update_info", userData);
+    const response = await api.put("/profile/update-info", userData);
     return response.data;
 };
 
 export const updatePassword = async (passwordData) =>
 {
-    const response = await api.put("/users/update_password", passwordData);
+    const response = await api.put("/users/update-password", passwordData);
     return response.data;
 };
 
