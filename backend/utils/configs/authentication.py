@@ -41,5 +41,6 @@ def get_current_user(token: str = Depends(oauth2_bearer)) -> dict | None:
         return {
             "id": int(user_id)
         }
-    except Exception:
+    except Exception as e:
+        print ("Validating user error:\n", e)
         return None

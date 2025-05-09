@@ -34,7 +34,8 @@ def can_connect(token: str) -> int | None:
 
         if user_id is None:
             return None
-    except Exception:
+    except Exception as e:
+        print ("Validating user error:\n", str(e))
         return None
 
     return int(user_id)

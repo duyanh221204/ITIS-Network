@@ -26,7 +26,7 @@ async def get_or_create_conversation(
             return raise_error(1005)
         return chat_service.get_or_create_conversation(db, user.get("id"), data.user_id)
     except Exception as e:
-        print ("Getting or creating conversation error:\n" + str(e))
+        print ("Retrieving or creating conversation error:\n" + str(e))
         return raise_error(4000)
 
 
@@ -41,7 +41,7 @@ async def get_all_conversations(
             return raise_error(1005)
         return chat_service.get_all_conversations(db, user.get("id"))
     except Exception as e:
-        print ("Getting all conversations error:\n" + str(e))
+        print ("Retrieving all conversations error:\n" + str(e))
         return raise_error(4001)
 
 
@@ -57,7 +57,7 @@ async def get_all_messages(
             return raise_error(1005)
         return chat_service.get_all_messages(db, conversation_id, user.get("id"))
     except Exception as e:
-        print ("Getting messages error:\n" + str(e))
+        print ("Retrieving messages error:\n" + str(e))
         return raise_error(4002)
 
 
@@ -133,7 +133,7 @@ async def unread_count(
             return raise_error(1005)
         return chat_service.unread_count(db, user.get("id"))
     except Exception as e:
-        print ("Getting unread conversations error:\n", str(e))
+        print ("Retrieving unread conversations error:\n", str(e))
         return raise_error(4005)
 
 

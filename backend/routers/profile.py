@@ -24,7 +24,7 @@ async def get_info(
             return raise_error(1005)
         return profile_service.get_info(db, user_id)
     except Exception as e:
-        print ("Getting user's info error:\n", str(e))
+        print ("Retrieving user's info error:\n", str(e))
         return raise_error(1008)
 
 

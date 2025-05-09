@@ -27,7 +27,7 @@ async def get_all_posts(
             return raise_error(1005)
         return post_service.get_all_posts(db)
     except Exception as e:
-        print ("Getting all posts error:\n", str(e))
+        print ("Retrieving all posts error:\n", str(e))
         return raise_error(2005)
 
 
@@ -42,7 +42,7 @@ async def get_posts_by_followings(
             return raise_error(1005)
         return post_service.get_posts_by_followings(db, user.get("id"))
     except Exception as e:
-        print ("Getting following posts error:\n", str(e))
+        print ("Retrieving following posts error:\n", str(e))
         return raise_error(2005)
 
 
@@ -58,7 +58,7 @@ async def get_posts_by_user(
             return raise_error(1005)
         return post_service.get_posts_by_user(db, user_id)
     except Exception as e:
-        print ("Getting user's posts error:\n", str(e))
+        print ("Retrieving user's posts error:\n", str(e))
         return raise_error(2005)
 
 

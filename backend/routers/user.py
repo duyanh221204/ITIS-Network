@@ -93,5 +93,5 @@ async def get_not_followed_users(
             return raise_error(1005)
         return user_service.get_not_followed_users(db, user.get("id"))
     except Exception as e:
-        print ("Get users error:\n", str(e))
+        print ("Retrieving users error:\n", str(e))
         return raise_error(1012)

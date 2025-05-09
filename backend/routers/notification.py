@@ -24,7 +24,7 @@ async def get_all_notifications(
             return raise_error(1005)
         return noti_service.get_all_notifications(db, user.get("id"))
     except Exception as e:
-        print ("Getting all notifications error:\n", str(e))
+        print ("Retrieving all notifications error:\n", str(e))
         return raise_error(3000)
 
 
