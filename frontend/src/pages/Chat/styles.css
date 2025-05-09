@@ -172,6 +172,8 @@
 {
     padding: 10px 14px;
     overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: pre-line;
     font-size: 14px;
 }
 

@@ -25,12 +25,12 @@ const App = () =>
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={ !isAuthenticated ? <Login setIsAuthenticated={ setIsAuthenticated } /> : <Navigate to={ window.location.pathname !== "/login" ? window.location.pathname : window.location.pathname } /> } />
-        <Route path="/register" element={ !isAuthenticated ? <Register /> : <Navigate to={ window.location.pathname !== "/register" ? window.location.pathname : window.location.pathname } /> } />
-        <Route path="/forgot-password" element={ <ForgotPassword /> } />
-        <Route path="/verify-otp" element={ <OtpVerify /> } />
-        <Route path="/reset-password" element={ <ResetPassword /> } />
-        <Route path="/*" element={ isAuthenticated ? <MainLayout /> : <Navigate to="/login" /> } />
+        <Route path="/login" element={!isAuthenticated ? <Login setIsAuthenticated={setIsAuthenticated} /> : <Navigate to={window.location.pathname !== "/login" ? window.location.pathname : window.location.pathname} />} />
+        <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to={window.location.pathname !== "/register" ? window.location.pathname : window.location.pathname} />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-otp" element={<OtpVerify />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/*" element={isAuthenticated ? <MainLayout /> : <Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
   );

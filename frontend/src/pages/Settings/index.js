@@ -1,7 +1,7 @@
-import {useState, useEffect} from "react";
-import {useNavigate} from "react-router-dom";
-import {getUserProfile, updateUserInfo, updatePassword} from "../../services/profileService";
-import {uploadImage} from "../../services/authService";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getUserProfile, updateUserInfo, updatePassword } from "../../services/profileService";
+import { uploadImage } from "../../services/authService";
 import "./styles.css";
 
 const Settings = ({page}) =>

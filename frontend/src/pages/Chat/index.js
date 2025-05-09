@@ -1,6 +1,6 @@
-import {useState, useEffect, useRef} from "react";
-import {useNavigate, useParams} from "react-router-dom";
-import {getAllConversations, getAllMessages, sendMessage, markConversationAsRead, getWebSocketUrl} from "../../services/chatService";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getAllConversations, getAllMessages, sendMessage, markConversationAsRead, getWebSocketUrl } from "../../services/chatService";
 import "./styles.css";
 
 const Chat = () =>
@@ -36,8 +36,10 @@ const Chat = () =>
             {
                 setTimeout(scrollToBottom, 0);
             });
+
             setupWebSocket();
             setNewMessage("");
+            markConversationAsRead(conversationId);
         }
         else
             setMessages([]);
@@ -58,37 +60,68 @@ const Chat = () =>
 
         ws.onopen = () =>
         {
-            console.log("WebSocket connection established");
+            console.log("WS onopen, readyState=", ws.readyState);
         };
 
         ws.onmessage = (event) =>
         {
             const data = JSON.parse(event.data);
-            setMessages(prev =>
+            if (data.type === 'chat_message' && data.data)
             {
-                if (prev.some(m => m.id === data.id))
-                    return prev;
-                return [
-                    ...prev,
+                if (data.data.sender_id === currentUserId)
+                    return;
+
+                if (parseInt(conversationId) === data.data.conversation_id)
+                {
+                    setMessages(prev =>
                     {
-                        id: data.id,
-                        content: data.content,
-                        created_at: data.created_at,
-                        sender: { id: data.sender_id },
-                        is_read: false
+                        if (prev.some(m => m.id === data.data.id)) return prev;
+                        return [
+                            ...prev,
+                            {
+                                id: data.data.id,
+                                content: data.data.content,
+                                created_at: data.data.created_at,
+                                sender: {
+                                    id: data.data.sender_id
+                                },
+                                is_read: false
+                            }
+                        ];
+                    });
+
+                    if (data.data.sender_id !== currentUserId)
+                    {
+                        markConversationAsRead(conversationId).then(() =>
+                        {
+                            if (window.fetchUnreadConversations)
+                                window.fetchUnreadConversations();
+                        });
                     }
-                ];
-            });
+                }
+            }
+            else if (data.type === "read_receipt" && data.data)
+            {
+                const {reader_id} = data.data;
+                if (reader_id !== currentUserId)
+                {
+                    setMessages(prev =>
+                        prev.map(m =>
+                            m.sender.id === currentUserId ? {...m, is_read: true} : m
+                        )
+                    );
+                }
+            }
         };
 
         ws.onerror = (error) =>
         {
-            throw error;
+            console.error("Websocket error:", error, ws.readyState, ws.url);
         };
 
-        ws.onclose = () =>
+        ws.onclose = (event) =>
         {
-            console.log("WebSocket connection closed");
+            console.log("WebSocket connection closed", event, ws.readyState, ws.url);
         };
 
         wsRef.current = ws;
@@ -105,7 +138,7 @@ const Chat = () =>
         }
         catch (error)
         {
-            throw error;
+            setError("Failed to load conversations");
         }
         finally
         {
@@ -136,7 +169,6 @@ const Chat = () =>
         catch (error)
         {
             setError("Failed to load messages");
-            throw error;
         }
         finally
         {
@@ -156,34 +188,32 @@ const Chat = () =>
         {
             const tempId = "pending-" + Date.now();
             const tempMsg =
-                {
-                    id: tempId,
-                    content: newMessage,
-                    created_at: new Date().toISOString(),
-                    sender:
-                        {
-                            id: currentUserId
-                        },
-                    is_read: false
-                };
+            {
+                id: tempId,
+                content: newMessage,
+                created_at: new Date().toISOString(),
+                sender: {
+                    id: currentUserId
+                },
+                is_read: false
+            };
             setMessages(prev => [...prev, tempMsg]);
             setNewMessage("");
             setTimeout(scrollToBottom, 0);
 
-            const res = await sendMessage(conversationId, tempMsg.content);
-            if (res && res.data)
+            const response = await sendMessage(conversationId, tempMsg.content);
+            if (response && response.data)
             {
                 setMessages(prev =>
                     [
                         ...prev.filter(m => m.id !== tempId),
                         {
-                            id: res.data.id,
-                            content: res.data.content,
-                            created_at: res.data.created_at,
-                            sender:
-                                {
-                                    id: currentUserId
-                                },
+                            id: response.data.id,
+                            content: response.data.content,
+                            created_at: response.data.created_at,
+                            sender: {
+                                id: currentUserId
+                            },
                             is_read: false
                         }
                     ]
@@ -193,7 +223,7 @@ const Chat = () =>
         catch (error)
         {
             setMessages(prev => prev.filter(m => !("id" in m && String(m.id).startsWith("pending-"))));
-            throw error;
+            setError("Failed to send message");
         }
         finally
         {
@@ -231,34 +261,34 @@ const Chat = () =>
                                     <ul className="conversations-list">
                                         {
                                             conversations.map(conversation =>
-                                                (
-                                                    <li
-                                                        key={conversation.id}
-                                                        className={`conversation-item ${parseInt(conversationId) === conversation.id ? "active" : ""}`}
-                                                        onClick={() => selectConversation(conversation.id)}
-                                                    >
-                                                        <img
-                                                            src={conversation.participants[0].avatar || "/default_avatar.png" }
-                                                            alt={conversation.participants[0].username}
-                                                            className="conversation-avatar"
-                                                        />
-                                                        <div className="conversation-info">
-                                                            <span className="conversation-name">
-                                                                {
-                                                                    conversation.participants[0].username
-                                                                }
-                                                            </span>
-                                                            <span className="conversation-time">
-                                                                {
-                                                                    new Date(conversation.created_at).toLocaleDateString()
-                                                                }
-                                                            </span>
-                                                        </div>
-                                                        {
-                                                            conversation.hasUnread && <span className="unread-indicator"></span>
-                                                        }
-                                                    </li>
-                                                )
+                                            (
+                                                <li
+                                                    key={conversation.id}
+                                                    className={`conversation-item ${ parseInt(conversationId) === conversation.id ? "active" : ""}`}
+                                                    onClick={() => selectConversation(conversation.id)}
+                                                >
+                                                    <img
+                                                        src={conversation.participants[0].avatar || "/default_avatar.png"}
+                                                        alt={conversation.participants[0].username}
+                                                        className="conversation-avatar"
+                                                    />
+                                                    <div className="conversation-info">
+                                                        <span className="conversation-name">
+                                                            {
+                                                                conversation.participants[0].username
+                                                            }
+                                                        </span>
+                                                        <span className="conversation-time">
+                                                            {
+                                                                new Date(conversation.created_at).toLocaleDateString()
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                    {
+                                                        conversation.hasUnread && <span className="unread-indicator"></span>
+                                                    }
+                                                </li>
+                                            )
                                             )
                                         }
                                     </ul>
@@ -316,31 +346,31 @@ const Chat = () =>
                                                             <>
                                                                 {
                                                                     messages.map(message =>
-                                                                        (
-                                                                            <div
-                                                                                key={message.id}
-                                                                                className={`message ${message.sender.id === currentUserId ? "my-message" : "other-message"}`}
-                                                                            >
-                                                                                <div className="message-content">{message.content}</div>
-                                                                                <div className="message-info">
-                                                                                    <span className="message-time">
-                                                                                        {
-                                                                                            new Date(message.created_at).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})
-                                                                                        }
-                                                                                    </span>
+                                                                    (
+                                                                        <div
+                                                                            key={message.id}
+                                                                            className={`message ${message.sender.id === currentUserId ? "my-message" : "other-message"}`}
+                                                                        >
+                                                                            <div className="message-content">{message.content}</div>
+                                                                            <div className="message-info">
+                                                                                <span className="message-time">
                                                                                     {
-                                                                                        message.sender.id === currentUserId &&
-                                                                                        (
-                                                                                            <span className={`read-status ${message.is_read ? "read" : ""}`}>
-                                                                                                {
-                                                                                                    message.is_read ? "✓✓" : "✓"
-                                                                                                }
-                                                                                            </span>
-                                                                                        )
+                                                                                        new Date(message.created_at).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})
                                                                                     }
-                                                                                </div>
+                                                                                </span>
+                                                                                {
+                                                                                    message.sender.id === currentUserId &&
+                                                                                    (
+                                                                                        <span className={`read-status ${message.is_read ? "read" : ""}`}>
+                                                                                            {
+                                                                                                message.is_read ? "✓✓" : "✓"
+                                                                                            }
+                                                                                        </span>
+                                                                                    )
+                                                                                }
                                                                             </div>
-                                                                        )
+                                                                        </div>
+                                                                    )
                                                                     )
                                                                 }
                                                                 <div ref={messagesEndRef} />

@@ -38,12 +38,12 @@ export const unlikePost = async (postId) =>
 
 export const createComment = async (commentData) =>
 {
-    const response = await api.post(`/posts/create_comment/${commentData.post_id}`, commentData);
+    const response = await api.post(`/posts/create-comment/${commentData.post_id}`, commentData);
     return response.data;
 };
 
 export const deleteComment = async (commentId) =>
 {
-    const response = await api.delete(`/posts/delete_comment/${commentId}`);
+    const response = await api.delete(`/posts/delete-comment/${commentId}`);
     return response.data;
 };

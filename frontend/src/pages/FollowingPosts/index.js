@@ -1,5 +1,5 @@
-import {useState, useEffect} from "react";
-import {getFollowingPosts} from "../../services/postService";
+import { useState, useEffect } from "react";
+import { getFollowingPosts } from "../../services/postService";
 import Post from "../../components/Post";
 import CreatePostForm from "../../components/CreatePostForm";
 import "./styles.css";
@@ -29,7 +29,6 @@ const FollowingPosts = () =>
         catch (error)
         {
             setError("Error loading posts");
-            throw error;
         }
         finally
         {

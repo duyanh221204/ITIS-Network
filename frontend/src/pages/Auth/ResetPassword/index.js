@@ -1,6 +1,6 @@
-import {useState} from "react";
-import {useLocation, useNavigate} from "react-router-dom";
-import {resetPassword} from "../../../services/authService";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { resetPassword } from "../../../services/authService";
 import "../styles.css";
 
 const ResetPassword = () =>

@@ -1,7 +1,7 @@
-import {useState, useEffect, useRef} from "react";
-import {Link, useNavigate} from "react-router-dom";
-import {getAllNotifications, markNotificationAsRead} from "../../services/notificationService";
-import {getAllConversations, getUnreadConversations} from "../../services/chatService";
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { getAllNotifications, markNotificationAsRead, getNotificationWsUrl } from "../../services/notificationService";
+import { getAllConversations, getUnreadConversations } from "../../services/chatService";
 import "./styles.css";
 
 const Header = () =>
@@ -22,6 +22,27 @@ const Header = () =>
         fetchConversations();
         fetchUnreadConversations();
 
+        let ws;
+        if (localStorage.getItem("token"))
+        {
+            ws = new window.WebSocket(getNotificationWsUrl());
+            ws.onmessage = (event) =>
+            {
+                const msg = JSON.parse(event.data);
+                if (msg.type === "new_notification" && msg.data)
+                    fetchNotifications();
+
+                if (msg.type === "notifications" && Array.isArray(msg.data))
+                {
+                    setNotifications(msg.data);
+                    setNotificationCount(msg.data.filter(n => !n.is_read).length);
+                }
+            };
+            ws.onerror = (error) =>
+            {
+                console.error("Websocket error:", error, ws.readyState, ws.url);
+            };
+        }
         const intervalId = setInterval(() =>
         {
             fetchNotifications();
@@ -29,7 +50,12 @@ const Header = () =>
             fetchUnreadConversations();
         }, 30000);
 
-        return () => clearInterval(intervalId);
+        return () =>
+        {
+            clearInterval(intervalId);
+            if (ws)
+                ws.close();
+        };
     }, []);
 
     useEffect(() =>
@@ -127,12 +153,12 @@ const Header = () =>
         if (unreadConversations.ids.includes(conversation.id))
         {
             setUnreadConversations(prev =>
-                (
-                    {
-                        count: Math.max(0, prev.count - 1),
-                        ids: prev.ids.filter(id => id !== conversation.id)
-                    }
-                )
+            (
+                {
+                    count: Math.max(0, prev.count - 1),
+                    ids: prev.ids.filter(id => id !== conversation.id)
+                }
+            )
             );
         }
     };
