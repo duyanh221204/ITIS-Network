@@ -8,16 +8,16 @@ load_dotenv()
 
 SMTP_HOST = os.getenv("SMTP_HOST")
 SMTP_PORT = os.getenv("SMTP_PORT")
-SMTP_USER = os.getenv("SMTP_USER")
+SMTP_USERNAME = os.getenv("SMTP_USERNAME")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 
 
 def send_email(recipient: str, subject: str, body: str):
     msg = MIMEText(body, "plain", "utf-8")
     msg["Subject"] = subject
-    msg["From"] = SMTP_USER
+    msg["From"] = SMTP_USERNAME
     msg["To"] = recipient
 
     with smtplib.SMTP_SSL(SMTP_HOST, int(SMTP_PORT)) as mail_server:
-        mail_server.login(SMTP_USER, SMTP_PASSWORD)
-        mail_server.sendmail(SMTP_USER, [recipient], msg.as_string())
+        mail_server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        mail_server.sendmail(SMTP_USERNAME, [recipient], msg.as_string())

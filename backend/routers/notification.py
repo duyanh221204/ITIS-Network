@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, WebSocket, Query
+from fastapi import APIRouter, Depends, WebSocket, Query, status
+from fastapi.encoders import jsonable_encoder
 
 from services.notification_service import get_notification_service
 from utils.configs.authentication import get_current_user
 from utils.configs.database import get_db, SessionLocal
-from utils.configs.websocket import websocket_manager, get_sender
+from utils.configs.websocket import websocket_manager, can_connect
 from utils.exceptions import raise_error
 
 router = APIRouter(
@@ -21,8 +22,9 @@ async def get_all_notifications(
     try:
         if user is None:
             return raise_error(1005)
-        return noti_service.get_all_notifications(db, user["id"])
-    except Exception:
+        return noti_service.get_all_notifications(db, user.get("id"))
+    except Exception as e:
+        print ("Getting all notifications error:\n", str(e))
         return raise_error(3000)
 
 
@@ -36,8 +38,9 @@ async def mark_as_read(
     try:
         if user is None:
             return raise_error(1005)
-        return noti_service.mark_as_read(db, user["id"], noti_id)
-    except Exception:
+        return noti_service.mark_as_read(db, user.get("id"), noti_id)
+    except Exception as e:
+        print ("Marking notification as read error:\n", str(e))
         return raise_error(3002)
 
 
@@ -47,11 +50,14 @@ async def notifications_websocket(
         token: str = Query(...),
         noti_service=Depends(get_notification_service)
 ):
-    user_id = get_sender(token, websocket)
+    await websocket.accept()
+
+    user_id = can_connect(token)
     if user_id is None:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
-    await websocket_manager.connect(user_id, websocket)
+    websocket_manager.connect(user_id, websocket)
     db = SessionLocal()
 
     try:
@@ -60,7 +66,7 @@ async def notifications_websocket(
             await websocket.send_json(
                 {
                     "type": "notifications",
-                    "data": response.data
+                    "data": jsonable_encoder(response.data)
                 }
             )
     finally:
@@ -69,5 +75,7 @@ async def notifications_websocket(
     try:
         while True:
             await websocket.receive_text()
-    except Exception:
-        await websocket_manager.disconnect(user_id, websocket)
+    except Exception as e:
+        print ("Websocket exception:\n" + str(e))
+    finally:
+        websocket_manager.disconnect(user_id, websocket)

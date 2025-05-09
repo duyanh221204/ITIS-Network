@@ -9,5 +9,5 @@ class LikeSchema(BaseModel):
     post_id: int
 
     model_config = {
-        "from_attribute": True
+        "from_attributes": True
     }

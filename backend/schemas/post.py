@@ -21,5 +21,5 @@ class PostInfoSchema(PostBaseSchema):
     comments: list[CommentInfoSchema]
 
     model_config = {
-        "from_attribute": True
+        "from_attributes": True
     }

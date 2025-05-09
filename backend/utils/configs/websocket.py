@@ -1,6 +1,4 @@
-import asyncio
-
-from fastapi import WebSocket, status
+from fastapi import WebSocket
 from jose import jwt
 
 from utils.configs.authentication import SECRET_KEY, ALGORITHM
@@ -9,10 +7,8 @@ from utils.configs.authentication import SECRET_KEY, ALGORITHM
 class ConnectionManager:
     def __init__(self):
         self.active: dict[int, list[WebSocket]] = {}
-        self.loop: asyncio.AbstractEventLoop | None = None
 
-    async def connect(self, key: int, websocket: WebSocket):
-        await websocket.accept()
+    def connect(self, key: int, websocket: WebSocket):
         self.active.setdefault(key, []).append(websocket)
 
     def disconnect(self, key: int, websocket: WebSocket):
@@ -31,15 +27,14 @@ class ConnectionManager:
 websocket_manager = ConnectionManager()
 
 
-async def get_sender(token: str, websocket: WebSocket) -> int | None:
+def can_connect(token: str) -> int | None:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        user_id: int = payload.get("id")
+        user_id: str = payload.get("sub")
 
-        if user_id is None or username is None:
-            return await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        if user_id is None:
+            return None
     except Exception:
-        return await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return None
 
-    return user_id
+    return int(user_id)

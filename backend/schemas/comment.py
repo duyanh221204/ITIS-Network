@@ -13,5 +13,5 @@ class CommentInfoSchema(CommentBaseSchema):
     author_avatar: str | None = None
 
     model_config = {
-        "from_attribute": True
+        "from_attributes": True
     }

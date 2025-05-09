@@ -15,7 +15,7 @@ class ConversationSchema(BaseModel):
     created_at: datetime
     
     model_config = {
-        "from_attribute": True
+        "from_attributes": True
     }
 
 
@@ -31,7 +31,7 @@ class MessageSchema(BaseModel):
     created_at: datetime
 
     model_config = {
-        "from_attribute": True
+        "from_attributes": True
     }
     
     

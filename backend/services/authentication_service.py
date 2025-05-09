@@ -53,7 +53,7 @@ class AuthenticationService:
             return raise_error(1004)
 
         access_token = create_access_token(
-            data={"sub": user_db.username, "id": user_db.id},
+            data={"sub": str(user_db.id)},
             expired_delta=timedelta(minutes=int(ACCESS_TOKEN_EXPIRED_MINUTES))
         )
         return TokenSchema(access_token=access_token)

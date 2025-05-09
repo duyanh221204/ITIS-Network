@@ -14,5 +14,5 @@ class NotificationSchema(BaseModel):
     created_at: datetime
 
     model_config = {
-        "from_attribute": True
+        "from_attributes": True
     }
