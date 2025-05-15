@@ -1,40 +1,29 @@
-from sqlalchemy.orm import Session, selectinload
+from fastapi import Depends
 
-from models import Notification
 from models.notification import NotificationType
+from repositories.notification_repository import NotificationRepository, get_notification_repository
 from schemas.base_response import BaseResponse
 from schemas.notification import NotificationSchema
 from schemas.user import UserMiniSchema
 from utils.exceptions import raise_error
 
 
-def get_notification_service():
+def get_notification_service(notification_repository=Depends(get_notification_repository)):
     try:
-        yield NotificationService()
+        yield NotificationService(notification_repository)
     finally:
         pass
 
 
 class NotificationService:
+    def __init__(self, notification_repository: NotificationRepository):
+        self.notification_repository = notification_repository
+
     def notify(
-            self, db: Session, actor_id: int, receiver_id: int, noti_type: NotificationType, post_id: int | None = None
+            self, actor_id: int, receiver_id: int, noti_type: NotificationType, post_id: int | None = None
     ) -> BaseResponse:
-        noti = Notification(
-            type=noti_type,
-            actor_id=actor_id,
-            receiver_id=receiver_id,
-            post_id=post_id
-        )
-        db.add(noti)
-        db.commit()
-        db.refresh(noti)
-
-        new_noti = db.query(Notification).options(
-            selectinload(Notification.actor)
-        ).filter(
-            Notification.id == noti.id
-        ).first()
-
+        noti = self.notification_repository.create(actor_id, receiver_id, noti_type, post_id)
+        new_noti = self.notification_repository.get_by_id(noti.id)
         data = NotificationSchema.model_validate(new_noti)
         return BaseResponse(message="Notification created", data=data)
 
@@ -52,39 +41,18 @@ class NotificationService:
         ]
         return BaseResponse(message="All notifications retrieved", data=data)
 
-    def get_all_notifications(self, db: Session, user_id: int) -> BaseResponse:
-        notis = db.query(Notification).filter(
-            Notification.receiver_id == user_id
-        ).options(
-            selectinload(Notification.actor)
-        ).order_by(
-            Notification.created_at.desc()
-        ).all()
-
+    def get_all_notifications(self, user_id: int) -> BaseResponse:
+        notis = self.notification_repository.get_all_by_user_id(user_id)
         return self.get_notifications(notis)
 
-    def get_unread_notifications(self, db: Session, user_id: int) -> BaseResponse:
-        unread_notis = db.query(Notification).filter(
-            Notification.receiver_id == user_id,
-            Notification.is_read == False
-        ).options(
-            selectinload(Notification.actor)
-        ).order_by(
-            Notification.created_at.desc()
-        ).all()
-
+    def get_unread_notifications(self, user_id: int) -> BaseResponse:
+        unread_notis = self.notification_repository.get_unread_by_user_id(user_id)
         return self.get_notifications(unread_notis)
 
-    def mark_as_read(self, db: Session, user_id: int, noti_id) -> BaseResponse:
-        noti = db.query(Notification).filter(
-            Notification.id == noti_id,
-            Notification.receiver_id == user_id
-        ).first()
-
+    def mark_as_read(self, user_id: int, noti_id: int) -> BaseResponse:
+        noti = self.notification_repository.get_by_id_and_user_id(noti_id, user_id)
         if noti is None:
             return raise_error(3001)
 
-        noti.is_read = True
-        db.commit()
-        db.refresh(noti)
+        self.notification_repository.mark_as_read(noti)
         return BaseResponse(message="Marked notification as read")

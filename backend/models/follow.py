@@ -11,5 +11,5 @@ class Follow(Base):
     follower_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
     followed_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
 
-    follower = relationship("User", foreign_keys=[follower_id], back_populates="followings")
-    followed = relationship("User", foreign_keys=[followed_id], back_populates="followers")
+    follower = relationship("User", foreign_keys="[Follow.follower_id]", back_populates="followings")
+    followed = relationship("User", foreign_keys="[Follow.followed_id]", back_populates="followers")
