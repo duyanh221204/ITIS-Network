@@ -1,36 +1,34 @@
-from sqlalchemy import func, distinct
-from sqlalchemy.orm import Session, selectinload
+from fastapi import Depends
 
-from models import Conversation, Message
+from repositories.conversation_repository import get_conversation_repository, ConversationRepository
+from repositories.message_repository import get_message_repository, MessageRepository
 from schemas.base_response import BaseResponse
 from schemas.chat import ConversationSchema, MessageSchema, MessageCreateSchema, UnreadConversationsSchema
 from schemas.user import UserMiniSchema
 from utils.exceptions import raise_error
 
 
-def get_chat_service():
+def get_chat_service(
+        conversation_repository=Depends(get_conversation_repository),
+        message_repository=Depends(get_message_repository)
+):
     try:
-        yield ChatService()
+        yield ChatService(conversation_repository, message_repository)
     finally:
         pass
 
 
 class ChatService:
-    def get_or_create_conversation(self, db: Session, user_id: int, other_user_id: int) -> BaseResponse:
+    def __init__(self, conversation_repository: ConversationRepository, message_repository: MessageRepository):
+        self.conversation_repository = conversation_repository
+        self.message_repository = message_repository
+
+    def get_or_create_conversation(self, user_id: int, other_user_id: int) -> BaseResponse:
         user1_id, user2_id = sorted([user_id, other_user_id])
-        conversation = db.query(Conversation).filter(
-            Conversation.user1_id == user1_id,
-            Conversation.user2_id == user2_id
-        ).options(
-            selectinload(Conversation.user1),
-            selectinload(Conversation.user2)
-        ).first()
+        conversation = self.conversation_repository.get_by_user_id(user1_id, user2_id)
 
         if conversation is None:
-            conversation = Conversation(user1_id=user1_id, user2_id=user2_id)
-            db.add(conversation)
-            db.commit()
-            db.refresh(conversation)
+            self.conversation_repository.create(user1_id, user2_id)
 
         response = ConversationSchema(
             id=conversation.id,
@@ -43,13 +41,8 @@ class ChatService:
         )
         return BaseResponse(data=response)
 
-    def get_all_conversations(self, db: Session, user_id: int) -> BaseResponse:
-        conversations = db.query(Conversation).filter(
-            (Conversation.user1_id == user_id) | (Conversation.user2_id == user_id)
-        ).options(
-            selectinload(Conversation.user1),
-            selectinload(Conversation.user2)
-        ).order_by(Conversation.created_at.desc()).all()
+    def get_all_conversations(self, user_id: int) -> BaseResponse:
+        conversations = self.conversation_repository.get_all(user_id)
 
         data = []
         for cnv in conversations:
@@ -62,16 +55,12 @@ class ChatService:
 
         return BaseResponse(message="Conversations retrieved", data=data)
 
-    def get_all_messages(self, db: Session, conversation_id: int, user_id: int) -> BaseResponse:
-        conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    def get_all_messages(self, conversation_id: int, user_id: int) -> BaseResponse:
+        conversation = self.conversation_repository.get_by_id(conversation_id)
         if conversation is None or user_id not in {conversation.user1_id, conversation.user2_id}:
             return raise_error(4002)
 
-        messages = db.query(Message).filter(
-            Message.conversation_id == conversation_id
-        ).options(
-            selectinload(Message.sender)
-        ).order_by(Message.created_at).all()
+        messages = self.message_repository.get_all(conversation_id)
 
         data = [
             MessageSchema(
@@ -86,45 +75,22 @@ class ChatService:
 
         return BaseResponse(message="Messages retrieved", data=data)
 
-    def send_message(self, db: Session, conversation_id: int, user_id: int, data: MessageCreateSchema) -> BaseResponse:
-        conversation = db.query(Conversation).filter(Conversation.id == conversation_id).first()
+    def send_message(self, conversation_id: int, user_id: int, data: MessageCreateSchema) -> BaseResponse:
+        conversation = self.conversation_repository.get_by_id(conversation_id)
         if conversation is None or user_id not in {conversation.user1_id, conversation.user2_id}:
             return raise_error(4002)
 
-        msg = Message(
-            content=data.content,
-            sender_id=user_id,
-            conversation_id=conversation_id
-        )
-        db.add(msg)
-        db.commit()
-        db.refresh(msg)
+        msg = self.message_repository.create(conversation_id, user_id, data)
         return BaseResponse(message="Send message successfully", data=MessageSchema.model_validate(msg))
 
-    def mark_as_read(self, db: Session, conversation_id: int, user_id: int) -> BaseResponse:
-        db.query(Message).filter(
-            Message.conversation_id == conversation_id,
-            Message.sender_id != user_id,
-            Message.is_read == False
-        ).update({Message.is_read: True}, synchronize_session=False)
-        db.commit()
+    def mark_as_read(self, conversation_id: int, user_id: int) -> BaseResponse:
+        self.message_repository.mark_as_read(conversation_id, user_id)
         return BaseResponse(message="Conversation marked as read")
 
-    def unread_count(self, db: Session, user_id: int) -> BaseResponse:
-        count = db.query(func.count(distinct(Message.conversation_id))).filter(
-            Message.sender_id != user_id,
-            Message.is_read == False
-        ).scalar()
-        
-        ids = [
-            result[0] for result in db.query(distinct(Message.conversation_id)).filter(
-                Message.sender_id != user_id,
-                Message.is_read == False
-            ).all()
-        ]
-
+    def unread_count(self, user_id: int) -> BaseResponse:
+        ids = self.conversation_repository.get_unread(user_id)
         data = UnreadConversationsSchema(
-            count=count,
+            count=len(ids),
             ids=ids
         )
         return BaseResponse(message="Unread conversations retrieved successfully", data=data)

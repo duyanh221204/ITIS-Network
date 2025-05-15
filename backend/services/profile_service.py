@@ -1,32 +1,29 @@
-from sqlalchemy.orm import Session
+from fastapi import Depends
 
-from models import User, Follow
+from repositories.user_repository import get_user_repository, UserRepository
 from schemas.base_response import BaseResponse
 from schemas.user import UserMiniSchema, UserProfileSchema, UserInfoUpdateSchema
 from utils.exceptions import raise_error
 
 
-def get_profile_service():
+def get_profile_service(user_repository=Depends(get_user_repository)):
     try:
-        yield ProfileService()
+        yield ProfileService(user_repository)
     finally:
         pass
 
 
 class ProfileService:
-    def get_info(self, db: Session, user_id: int) -> BaseResponse:
-        user_db = db.query(User).filter(User.id == user_id).first()
+    def __init__(self, user_repository: UserRepository):
+        self.user_repository = user_repository
 
-        followers_list = db.query(User).join(
-            Follow,
-            Follow.follower_id == User.id
-        ).filter(Follow.followed_id == user_id).all()
+    def get_info(self, user_id: int) -> BaseResponse:
+        user_db = self.user_repository.get_by_id(user_id)
+
+        followers_list = self.user_repository.get_followers(user_id)
         followers = [UserMiniSchema.model_validate(follower) for follower in followers_list]
 
-        followings_list = db.query(User).join(
-            Follow,
-            Follow.followed_id == User.id
-        ).filter(Follow.follower_id == user_id).all()
+        followings_list = self.user_repository.get_followings(user_id)
         followings = [UserMiniSchema.model_validate(following) for following in followings_list]
 
         user_info = UserProfileSchema(
@@ -40,22 +37,11 @@ class ProfileService:
         )
         return BaseResponse(message="Get user's info successfully", data=user_info)
 
-    def update_info(self, data: UserInfoUpdateSchema, db: Session, user_id: int) -> BaseResponse:
-        existing_user = db.query(User).filter(
-            User.username == data.username,
-            User.id != user_id
-        ).first()
+    def update_info(self, data: UserInfoUpdateSchema, user_id: int) -> BaseResponse:
+        existing_user = self.user_repository.get_by_username_and_id(data.username, user_id)
         if existing_user is not None:
             return raise_error(1001)
 
-        user_db = db.query(User).filter(User.id == user_id).first()
-        _data = data.model_dump(exclude_unset=True).items()
-        update_data = {key: value.strip() for key, value in _data if isinstance(value, str) and value.strip() != ""}
-
-        if update_data:
-            for key, value in update_data.items():
-                setattr(user_db, key, value)
-
-        db.commit()
-        db.refresh(user_db)
+        user_db = self.user_repository.get_by_id(user_id)
+        self.user_repository.update_info(user_db, data)
         return BaseResponse(message="Update user's info successfully")

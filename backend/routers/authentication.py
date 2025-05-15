@@ -3,8 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from schemas.authentication import OTPRequestSchema, PasswordResetSchema
 from schemas.user import UserRegisterSchema
-from services.authentication_service import get_auth_service
-from utils.configs.database import get_db
+from services.authentication_service import get_auth_service, AuthenticationService
 from utils.exceptions import raise_error
 
 router = APIRouter(
@@ -16,11 +15,10 @@ router = APIRouter(
 @router.post("/register")
 async def register(
         data: UserRegisterSchema,
-        db=Depends(get_db),
-        auth_service=Depends(get_auth_service)
+        auth_service: AuthenticationService = Depends(get_auth_service)
 ):
     try:
-        return auth_service.register(data, db)
+        return auth_service.register(data)
     except Exception as e:
         print ("Registration error:\n" + str(e))
         return raise_error(1000)
@@ -29,11 +27,10 @@ async def register(
 @router.post("/login")
 async def login_for_access_token(
         data: OAuth2PasswordRequestForm = Depends(),
-        db=Depends(get_db),
-        auth_service=Depends(get_auth_service)
+        auth_service: AuthenticationService = Depends(get_auth_service)
 ):
     try:
-        return auth_service.authenticate_user(data, db)
+        return auth_service.authenticate_user(data)
     except Exception as e:
         print ("Login error:\n" + str(e))
         return raise_error(1003)
@@ -42,7 +39,7 @@ async def login_for_access_token(
 @router.post("/otp")
 async def send_otp(
         data: OTPRequestSchema,
-        auth_service=Depends(get_auth_service)
+        auth_service: AuthenticationService = Depends(get_auth_service)
 ):
     try:
         return auth_service.send_otp(data)
@@ -54,11 +51,10 @@ async def send_otp(
 @router.put("/reset-password")
 async def reset_password(
         data: PasswordResetSchema,
-        db=Depends(get_db),
-        auth_service=Depends(get_auth_service)
+        auth_service: AuthenticationService = Depends(get_auth_service)
 ):
     try:
-        return auth_service.reset_password(data, db)
+        return auth_service.reset_password(data)
     except Exception as e:
         print ("Reset password error:\n" + str(e))
         return raise_error(1007)

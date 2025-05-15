@@ -1,10 +1,10 @@
 from fastapi import APIRouter, WebSocket, Query, Depends, status
 from fastapi.encoders import jsonable_encoder
 
+from schemas.authentication import TokenDataSchema
 from schemas.chat import ConversationCreateSchema, MessageCreateSchema
-from services.chat_service import get_chat_service
+from services.chat_service import get_chat_service, ChatService
 from utils.configs.authentication import get_current_user
-from utils.configs.database import get_db
 from utils.configs.websocket import websocket_manager, can_connect
 from utils.exceptions import raise_error
 
@@ -17,14 +17,13 @@ router = APIRouter(
 @router.post("/conversation")
 async def get_or_create_conversation(
         data: ConversationCreateSchema,
-        db=Depends(get_db),
-        user=Depends(get_current_user),
-        chat_service=Depends(get_chat_service)
+        user: TokenDataSchema = Depends(get_current_user),
+        chat_service: ChatService = Depends(get_chat_service)
 ):
     try:
         if user is None:
             return raise_error(1005)
-        return chat_service.get_or_create_conversation(db, user.get("id"), data.user_id)
+        return chat_service.get_or_create_conversation(user.id, data.user_id)
     except Exception as e:
         print ("Retrieving or creating conversation error:\n" + str(e))
         return raise_error(4000)
@@ -32,14 +31,13 @@ async def get_or_create_conversation(
 
 @router.get("/conversations")
 async def get_all_conversations(
-        db=Depends(get_db),
-        user=Depends(get_current_user),
-        chat_service=Depends(get_chat_service)
+        user: TokenDataSchema = Depends(get_current_user),
+        chat_service: ChatService = Depends(get_chat_service)
 ):
     try:
         if user is None:
             return raise_error(1005)
-        return chat_service.get_all_conversations(db, user.get("id"))
+        return chat_service.get_all_conversations(user.id)
     except Exception as e:
         print ("Retrieving all conversations error:\n" + str(e))
         return raise_error(4001)
@@ -48,14 +46,13 @@ async def get_all_conversations(
 @router.get("/conversation/{conversation_id}/messages")
 async def get_all_messages(
         conversation_id: int,
-        db=Depends(get_db),
-        user=Depends(get_current_user),
-        chat_service=Depends(get_chat_service)
+        user: TokenDataSchema = Depends(get_current_user),
+        chat_service: ChatService = Depends(get_chat_service)
 ):
     try:
         if user is None:
             return raise_error(1005)
-        return chat_service.get_all_messages(db, conversation_id, user.get("id"))
+        return chat_service.get_all_messages(conversation_id, user.id)
     except Exception as e:
         print ("Retrieving messages error:\n" + str(e))
         return raise_error(4002)
@@ -65,15 +62,14 @@ async def get_all_messages(
 async def send_message(
         data: MessageCreateSchema,
         conversation_id: int,
-        db=Depends(get_db),
-        user=Depends(get_current_user),
-        chat_service=Depends(get_chat_service)
+        user: TokenDataSchema = Depends(get_current_user),
+        chat_service: ChatService = Depends(get_chat_service)
 ):
     try:
         if user is None:
             return raise_error(1005)
 
-        response = chat_service.send_message(db, conversation_id, user.get("id"), data)
+        response = chat_service.send_message(conversation_id, user.id, data)
         if response.status == "ok":
             msg = response.data
             payload: dict = {
@@ -97,43 +93,41 @@ async def send_message(
 @router.put("/conversations/{conversation_id}/read")
 async def mark_as_read(
         conversation_id: int,
-        db=Depends(get_db),
-        user=Depends(get_current_user),
-        chat_service=Depends(get_chat_service)
+        user: TokenDataSchema = Depends(get_current_user),
+        chat_service: ChatService = Depends(get_chat_service)
 ):
     try:
         if user is None:
             return raise_error(1005)
 
-        response = chat_service.mark_as_read(db, conversation_id, user.get("id"))
+        response = chat_service.mark_as_read(conversation_id, user.id)
         if response.status == "ok":
             payload: dict = {
                 "type": "read_receipt",
                 "data": {
                     "conversation_id": conversation_id,
-                    "reader_id": user.get("id")
+                    "reader_id": user.id
                 }
             }
 
             await websocket_manager.broadcast(conversation_id, jsonable_encoder(payload))
         return response
     except Exception as e:
-        print ("Marking messages as read error:\n", str(e))
+        print ("Marking messages as read error:\n" + str(e))
         return raise_error(4004)
 
 
 @router.get("/conversations/unread")
 async def unread_count(
-        db=Depends(get_db),
-        user=Depends(get_current_user),
-        chat_service=Depends(get_chat_service)
+        user: TokenDataSchema = Depends(get_current_user),
+        chat_service: ChatService = Depends(get_chat_service)
 ):
     try:
         if user is None:
             return raise_error(1005)
-        return chat_service.unread_count(db, user.get("id"))
+        return chat_service.unread_count(user.id)
     except Exception as e:
-        print ("Retrieving unread conversations error:\n", str(e))
+        print ("Retrieving unread conversations error:\n" + str(e))
         return raise_error(4005)
 
 
@@ -145,8 +139,8 @@ async def chat_websocket(
 ):
     await websocket.accept()
 
-    user_id = can_connect(token)
-    if user_id is None:
+    user = can_connect(token)
+    if user is None:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
@@ -155,6 +149,6 @@ async def chat_websocket(
         while True:
             await websocket.receive_text()
     except Exception as e:
-        print ("Websocket exception:\n", str(e))
+        print ("Websocket exception:\n" + str(e))
     finally:
         websocket_manager.disconnect(conversation_id, websocket)

@@ -1,65 +1,51 @@
 from fastapi import Depends
-from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
 
-from models import Post, Like, Comment, Follow
+from models import Post
+from repositories.post_repository import get_post_repository, PostRepository
 from schemas.base_response import BaseResponse
 from schemas.comment import CommentInfoSchema, CommentBaseSchema
 from schemas.like import LikeSchema
 from schemas.post import PostBaseSchema, PostInfoSchema
-from services.notification_service import get_notification_service
+from services.notification_service import get_notification_service, NotificationService
 from utils.exceptions import raise_error
 
 
-def get_post_service(notification_service=Depends(get_notification_service)):
+def get_post_service(
+        post_repository=Depends(get_post_repository),
+        notification_service=Depends(get_notification_service)
+):
     try:
-        yield PostService(notification_service)
+        yield PostService(post_repository, notification_service)
     finally:
         pass
 
 
 class PostService:
-    def __init__(self, notification_service):
+    def __init__(self, post_repository: PostRepository, notification_service: NotificationService):
+        self.post_repository = post_repository
         self.notification_service = notification_service
 
-    def get_post_author_id(self, db: Session, post_id: int) -> int:
-        return db.query(Post).filter(Post.id == post_id).first().author_id
-
-    def create_post(self, data: PostBaseSchema, db: Session, user_id: int) -> BaseResponse:
+    def create_post(self, data: PostBaseSchema, user_id: int) -> BaseResponse:
         if data.content.strip() == "" and data.image == "":
             return raise_error(2001)
 
-        new_post = Post(**data.model_dump(), author_id=user_id)
-        db.add(new_post)
-        db.commit()
-        db.refresh(new_post)
+        self.post_repository.create(data, user_id)
         return BaseResponse(message="Create new post successfully")
     
-    def update_post_by_id(self, data: PostBaseSchema, db: Session, post_id: int) -> BaseResponse:
+    def update_post_by_id(self, data: PostBaseSchema, post_id: int) -> BaseResponse:
         if data.content.strip() == "" and data.image == "":
             return raise_error(2001)
 
-        post_db = db.query(Post).filter(Post.id == post_id).first()
-        post_db.content = data.content
-        post_db.image = data.image
-
-        db.commit()
-        db.refresh(post_db)
+        post_db = self.post_repository.get_by_id(post_id)
+        self.post_repository.update(data, post_db)
         return BaseResponse(message="Update post successfully")
 
-    def delete_post_by_id(self, db: Session, post_id: int) -> BaseResponse:
-        post_db = db.query(Post).filter(Post.id == post_id).first()
-        db.delete(post_db)
-        db.commit()
+    def delete_post_by_id(self, post_id: int) -> BaseResponse:
+        post_db = self.post_repository.get_by_id(post_id)
+        self.post_repository.delete(post_db)
         return BaseResponse(message="Delete post successfully")
     
-    def get_posts(self, query) -> BaseResponse:
-        posts = query.options(
-            selectinload(Post.author),
-            selectinload(Post.likes).selectinload(Like.liker),
-            selectinload(Post.comments).selectinload(Comment.author)
-        ).order_by(Post.created_at.desc()).all()
-
+    def get_posts(self, posts: list[type[Post]]) -> BaseResponse:
         data = []
         for post in posts:
             likes = [
@@ -99,52 +85,33 @@ class PostService:
 
         return BaseResponse(message="Posts retrieved successfully", data=data)
 
-    def get_all_posts(self, db: Session) -> BaseResponse:
-        return self.get_posts(db.query(Post))
+    def get_all_posts(self) -> BaseResponse:
+        posts = self.post_repository.get_all()
+        return self.get_posts(posts)
 
-    def get_posts_by_followings(self, db: Session, user_id: int) -> BaseResponse:
-        followings = select(Follow.followed_id).where(Follow.follower_id == user_id)
-        return self.get_posts(db.query(Post).filter(Post.author_id.in_(followings)))
+    def get_posts_by_followings(self, user_id: int) -> BaseResponse:
+        posts = self.post_repository.get_by_followings(user_id)
+        return self.get_posts(posts)
 
-    def get_posts_by_user(self, db: Session, user_id: int) -> BaseResponse:
-        return self.get_posts(db.query(Post).filter(Post.author_id == user_id))
+    def get_posts_by_user(self, user_id: int) -> BaseResponse:
+        posts = self.post_repository.get_by_followings(user_id)
+        return self.get_posts(posts)
 
-    def like_post(self, db: Session, liker_id: int, post_id: int) -> BaseResponse:
-        new_like = Like(
-            liker_id=liker_id,
-            post_id=post_id
-        )
+    def like_post(self, liker_id: int, post_id: int) -> BaseResponse:
+        new_like = self.post_repository.like(liker_id, post_id)
+        return BaseResponse(message="Like post successfully", data=new_like.post.author_id)
 
-        db.add(new_like)
-        db.commit()
-        db.refresh(new_like)
-        return BaseResponse(message="Like post successfully")
-
-    def unlike_post(self, db: Session, liker_id: int, post_id: int) -> BaseResponse:
-        like_db = db.query(Like).filter(
-            liker_id == liker_id,
-            post_id == post_id
-        ).first()
-
-        db.delete(like_db)
-        db.commit()
+    def unlike_post(self, liker_id: int, post_id: int) -> BaseResponse:
+        self.post_repository.unlike(liker_id, post_id)
         return BaseResponse(message="Unlike post successfully")
 
-    def create_comment(self, data: CommentBaseSchema, db: Session, author_id: int) -> BaseResponse:
+    def create_comment(self, data: CommentBaseSchema, author_id: int) -> BaseResponse:
         if data.content.strip() == "":
             return raise_error(2006)
 
-        new_comment = Comment(**data.model_dump(), author_id=author_id)
-        db.add(new_comment)
-        db.commit()
-        db.refresh(new_comment)
-        return BaseResponse(message="Create comment successfully")
+        new_comment = self.post_repository.comment(data, author_id)
+        return BaseResponse(message="Create comment successfully", data=new_comment.post.author_id)
 
-    def delete_comment(self, db: Session, comment_id: int, author_id: int) -> BaseResponse:
-        comment_db = db.query(Comment).filter(
-            Comment.id == comment_id,
-            Comment.author_id == author_id
-        ).first()
-        db.delete(comment_db)
-        db.commit()
+    def delete_comment(self, comment_id: int, author_id: int) -> BaseResponse:
+        self.post_repository.delete_comment(comment_id, author_id)
         return BaseResponse(message="Delete comment successfully")

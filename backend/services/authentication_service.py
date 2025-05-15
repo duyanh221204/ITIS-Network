@@ -3,14 +3,14 @@ import random
 from datetime import timedelta
 
 from dotenv import load_dotenv
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
 
-from models import User
+from repositories.user_repository import get_user_repository
 from schemas.authentication import TokenSchema, OTPRequestSchema, PasswordResetSchema
 from schemas.base_response import BaseResponse
 from schemas.user import UserRegisterSchema
-from utils.configs.authentication import hash_password, verify_password, create_access_token
+from utils.configs.authentication import verify_password, create_access_token
 from utils.configs.mail import send_email
 from utils.exceptions import raise_error
 
@@ -19,36 +19,33 @@ load_dotenv()
 ACCESS_TOKEN_EXPIRED_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRED_MINUTES")
 
 
-def get_auth_service():
+def get_auth_service(
+        user_repository=Depends(get_user_repository),
+):
     try:
-        yield AuthenticationService()
+        yield AuthenticationService(user_repository)
     finally:
         pass
 
 
 class AuthenticationService:
-    def register(self, data: UserRegisterSchema, db: Session) -> BaseResponse:
-        user_db = db.query(User).filter(
-            (User.username == data.username) | (User.email == data.email)
-        ).first()
+    def __init__(self, user_repository):
+        self.user_repository = user_repository
 
+    def register(self, data: UserRegisterSchema) -> BaseResponse:
+        user_db = self.user_repository.get_by_username(data.username)
         if user_db is not None:
-            return raise_error(1001) if user_db.username == data.username else raise_error(1002)
+            return raise_error(1001)
 
-        new_user = User(
-            username=data.username,
-            email=data.email,
-            avatar=data.avatar,
-            introduction=data.introduction,
-            hashed_password=hash_password(data.password)
-        )
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
+        user_db = self.user_repository.get_by_email(data.email)
+        if user_db is not None:
+            return raise_error(1002)
+
+        self.user_repository.create(data)
         return BaseResponse(message="Register successfully")
 
-    def authenticate_user(self, data: OAuth2PasswordRequestForm, db: Session) -> TokenSchema | BaseResponse:
-        user_db = db.query(User).filter(User.username == data.username).first()
+    def authenticate_user(self, data: OAuth2PasswordRequestForm) -> TokenSchema | BaseResponse:
+        user_db = self.user_repository.get_by_username(data.username)
         if user_db is None or not verify_password(data.password, user_db.hashed_password):
             return raise_error(1004)
 
@@ -58,14 +55,12 @@ class AuthenticationService:
         )
         return TokenSchema(access_token=access_token)
 
-    def reset_password(self, data: PasswordResetSchema, db: Session) -> BaseResponse:
-        user_db = db.query(User).filter(User.email == data.email).first()
+    def reset_password(self, data: PasswordResetSchema) -> BaseResponse:
+        user_db = self.user_repository.get_by_email(data.email)
         if user_db is None:
             return raise_error(1004)
 
-        user_db.hashed_password = hash_password(data.new_password)
-        db.commit()
-        db.refresh(user_db)
+        self.user_repository.update_user_password(data.new_password)
         return BaseResponse(message="Reset password successfully")
     
     def send_otp(self, data: OTPRequestSchema) -> BaseResponse:
@@ -75,7 +70,8 @@ class AuthenticationService:
 
         try:
             send_email(data.email, subject, body)
-        except Exception:
+        except Exception as e:
+            print ("Sending email error:\n" + str(e))
             return raise_error(5000)
 
         return BaseResponse(message="OTP sent successfully", data=code)

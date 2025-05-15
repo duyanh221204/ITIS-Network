@@ -20,5 +20,6 @@ class ImageService:
             result = upload(data.file)
             image_url = result["secure_url"]
             return BaseResponse(message="Upload image successfully", data=image_url)
-        except Exception:
+        except Exception as e:
+            print ("Uploading error:\n" + str(e))
             return raise_error(2000)

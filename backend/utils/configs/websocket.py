@@ -1,7 +1,8 @@
-from fastapi import WebSocket
-from jose import jwt
+from fastapi import WebSocket, Depends
 
-from utils.configs.authentication import SECRET_KEY, ALGORITHM
+from repositories.invalidated_token_repository import get_invalidated_token_repository
+from schemas.authentication import TokenDataSchema
+from utils.configs.authentication import verify_token
 
 
 class ConnectionManager:
@@ -27,15 +28,5 @@ class ConnectionManager:
 websocket_manager = ConnectionManager()
 
 
-def can_connect(token: str) -> int | None:
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
-
-        if user_id is None:
-            return None
-    except Exception as e:
-        print ("Validating user error:\n", str(e))
-        return None
-
-    return int(user_id)
+def can_connect(token: str) -> TokenDataSchema | None:
+    return verify_token(token, invalidated_token_repository=Depends(get_invalidated_token_repository))

@@ -6,6 +6,10 @@ class TokenSchema(BaseModel):
     token_type: str = "bearer"
 
 
+class TokenDataSchema(BaseModel):
+    id: int
+
+
 class OTPRequestSchema(BaseModel):
     email: str
 
