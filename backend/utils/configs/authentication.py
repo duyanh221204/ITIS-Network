@@ -36,17 +36,30 @@ def create_access_token(data: dict, expired_delta: timedelta) -> str:
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
+def decode_token(token: str) -> dict | None:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except Exception as e:
+        print ("Decoding token error:\n" + str(e))
+        return None
+
+
 def verify_token(
         token: str,
         invalidated_token_repository: InvalidatedTokenRepository
 ) -> TokenDataSchema | None:
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = decode_token(token)
+        if payload is None:
+            return None
+
         user_id: str = payload.get("sub")
         jwt_id: str = payload.get("id")
 
         if user_id is None:
             return None
+
         if invalidated_token_repository.get_by_jwt_id(jwt_id) is not None:
             return None
 

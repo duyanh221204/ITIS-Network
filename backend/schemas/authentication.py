@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class TokenSchema(BaseModel):
@@ -11,7 +11,7 @@ class TokenDataSchema(BaseModel):
 
 
 class OTPRequestSchema(BaseModel):
-    email: str
+    email: EmailStr
 
 
 class PasswordResetSchema(OTPRequestSchema):
