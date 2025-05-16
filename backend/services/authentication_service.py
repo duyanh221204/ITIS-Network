@@ -1,16 +1,17 @@
 import os
 import random
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from dotenv import load_dotenv
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from repositories.user_repository import get_user_repository
+from repositories.invalidated_token_repository import InvalidatedTokenRepository, get_invalidated_token_repository
+from repositories.user_repository import get_user_repository, UserRepository
 from schemas.authentication import TokenSchema, OTPRequestSchema, PasswordResetSchema
 from schemas.base_response import BaseResponse
 from schemas.user import UserRegisterSchema
-from utils.configs.authentication import verify_password, create_access_token
+from utils.configs.authentication import verify_password, create_access_token, verify_token, decode_token
 from utils.configs.mail import send_email
 from utils.exceptions import raise_error
 
@@ -21,16 +22,18 @@ ACCESS_TOKEN_EXPIRED_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRED_MINUTES")
 
 def get_auth_service(
         user_repository=Depends(get_user_repository),
+        invalidated_token_repository=Depends(get_invalidated_token_repository)
 ):
     try:
-        yield AuthenticationService(user_repository)
+        yield AuthenticationService(user_repository, invalidated_token_repository)
     finally:
         pass
 
 
 class AuthenticationService:
-    def __init__(self, user_repository):
+    def __init__(self, user_repository: UserRepository, invalidated_token_repository: InvalidatedTokenRepository):
         self.user_repository = user_repository
+        self.invalidated_token_repository = invalidated_token_repository
 
     def register(self, data: UserRegisterSchema) -> BaseResponse:
         user_db = self.user_repository.get_by_username(data.username)
@@ -60,7 +63,7 @@ class AuthenticationService:
         if user_db is None:
             return raise_error(1004)
 
-        self.user_repository.update_user_password(data.new_password)
+        self.user_repository.update_password(user_db, data.new_password)
         return BaseResponse(message="Reset password successfully")
     
     def send_otp(self, data: OTPRequestSchema) -> BaseResponse:
@@ -75,3 +78,33 @@ class AuthenticationService:
             return raise_error(5000)
 
         return BaseResponse(message="OTP sent successfully", data=code)
+
+    def refresh_token(self, token: str) -> TokenSchema | BaseResponse:
+        verified_token = verify_token(token, self.invalidated_token_repository)
+        if verified_token is None:
+            return raise_error(1005)
+
+        decoded_token = decode_token(token)
+        self.invalidated_token_repository.save(
+            decoded_token.get("id"),
+            datetime.fromtimestamp(decoded_token.get("exp"))
+        )
+
+        access_token = create_access_token(
+            data={"sub": str(verified_token.id)},
+            expired_delta=timedelta(minutes=int(ACCESS_TOKEN_EXPIRED_MINUTES))
+        )
+        return TokenSchema(access_token=access_token)
+
+    def logout(self, token: str) -> BaseResponse:
+        verified_token = verify_token(token, self.invalidated_token_repository)
+        if verified_token is None:
+            return raise_error(1005)
+
+        decoded_token = decode_token(token)
+        self.invalidated_token_repository.save(
+            decoded_token.get("id"),
+            datetime.fromtimestamp(decoded_token.get("exp"))
+        )
+
+        return BaseResponse(message="Logout successfully")

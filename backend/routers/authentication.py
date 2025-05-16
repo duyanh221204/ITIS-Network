@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from schemas.authentication import OTPRequestSchema, PasswordResetSchema
+from schemas.authentication import OTPRequestSchema, PasswordResetSchema, TokenDataSchema
 from schemas.user import UserRegisterSchema
 from services.authentication_service import get_auth_service, AuthenticationService
+from utils.configs.authentication import get_current_user, oauth2_bearer
 from utils.exceptions import raise_error
 
 router = APIRouter(
@@ -58,3 +59,32 @@ async def reset_password(
     except Exception as e:
         print ("Reset password error:\n" + str(e))
         return raise_error(1007)
+
+
+@router.post("/refresh")
+async def refresh_token(
+        token: str = Depends(oauth2_bearer),
+        user: TokenDataSchema = Depends(get_current_user),
+        auth_service: AuthenticationService = Depends(get_auth_service)
+):
+    try:
+        if user is None:
+            return raise_error(1005)
+        return auth_service.refresh_token(token)
+    except Exception as e:
+        print ("Refresh token error:\n" + str(e))
+        return raise_error(1013)
+
+@router.post("/logout")
+async def logout(
+        token: str = Depends(oauth2_bearer),
+        user: TokenDataSchema = Depends(get_current_user),
+        auth_service: AuthenticationService = Depends(get_auth_service)
+):
+    try:
+        if user is None:
+            return raise_error(1005)
+        return auth_service.logout(token)
+    except Exception as e:
+        print ("Logout error:\n" + str(e))
+        return raise_error(1014)

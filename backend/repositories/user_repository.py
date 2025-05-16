@@ -1,4 +1,5 @@
 from fastapi import Depends
+from pydantic import EmailStr
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -31,7 +32,7 @@ class UserRepository:
             User.id != user_id
         ).first()
 
-    def get_by_email(self, email: str) -> User | None:
+    def get_by_email(self, email: EmailStr) -> User | None:
         return self.db.query(User).filter(User.email == email).first()
 
     def create(self, data: UserRegisterSchema) -> None:

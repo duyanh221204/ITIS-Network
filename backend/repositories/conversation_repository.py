@@ -1,5 +1,3 @@
-from typing import Any
-
 from fastapi import Depends
 from sqlalchemy import distinct, ColumnElement
 from sqlalchemy.orm import Session, selectinload
