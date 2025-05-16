@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
 
-from utils.configs.database import Base
+from configs.database import Base
 
 
 class InvalidatedToken(Base):

@@ -1,8 +1,6 @@
-import os
 from datetime import timedelta, datetime, timezone
 from uuid import uuid4
 
-from dotenv import load_dotenv
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
@@ -10,11 +8,10 @@ from passlib.context import CryptContext
 
 from repositories.invalidated_token_repository import InvalidatedTokenRepository, get_invalidated_token_repository
 from schemas.authentication import TokenDataSchema
+from utils.constants import Constant
 
-load_dotenv()
-
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
+SECRET_KEY = Constant.SECRET_KEY
+ALGORITHM = Constant.ALGORITHM
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/api/auth/login")

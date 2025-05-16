@@ -4,8 +4,8 @@ from fastapi.encoders import jsonable_encoder
 from schemas.authentication import TokenDataSchema
 from schemas.chat import ConversationCreateSchema, MessageCreateSchema
 from services.chat_service import get_chat_service, ChatService
-from utils.configs.authentication import get_current_user
-from utils.configs.websocket import websocket_manager, can_connect
+from configs.authentication import get_current_user
+from configs.websocket import websocket_manager, can_connect
 from utils.exceptions import raise_error
 
 router = APIRouter(

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from schemas.authentication import TokenDataSchema
 from services.hashtag_service import HashtagService, get_hashtag_service
-from utils.configs.authentication import get_current_user
+from configs.authentication import get_current_user
 from utils.exceptions import raise_error
 
 router = APIRouter(

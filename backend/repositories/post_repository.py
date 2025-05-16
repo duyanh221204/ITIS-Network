@@ -6,7 +6,7 @@ from models import Post, Like, Comment, Follow, PostHashtag
 from repositories.hashtag_repository import HashtagRepository, get_hashtag_repository
 from schemas.comment import CommentBaseSchema
 from schemas.post import PostCreateSchema, PostUpdateSchema
-from utils.configs.database import get_db
+from configs.database import get_db
 
 
 def get_post_repository(db=Depends(get_db), hashtag_repository=Depends(get_hashtag_repository)):

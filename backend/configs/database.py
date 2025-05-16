@@ -1,17 +1,14 @@
-import os
-
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-load_dotenv()
+from utils.constants import Constant
 
-USERNAME = os.getenv("MYSQL_USERNAME")
-PASSWORD = os.getenv("MYSQL_PASSWORD")
-HOST = os.getenv("MYSQL_HOST")
-PORT = os.getenv("MYSQL_PORT")
-DATABASE = os.getenv("MYSQL_DATABASE")
+USERNAME = Constant.MYSQL_USERNAME
+PASSWORD = Constant.MYSQL_PASSWORD
+HOST = Constant.MYSQL_HOST
+PORT = Constant.MYSQL_PORT
+DATABASE = Constant.MYSQL_DATABASE
 
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 

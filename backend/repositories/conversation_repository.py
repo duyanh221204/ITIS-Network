@@ -3,7 +3,7 @@ from sqlalchemy import distinct, ColumnElement
 from sqlalchemy.orm import Session, selectinload
 
 from models import Conversation, Message
-from utils.configs.database import get_db
+from configs.database import get_db
 
 
 def get_conversation_repository(db=Depends(get_db)):

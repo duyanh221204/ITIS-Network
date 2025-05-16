@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from schemas.authentication import OTPRequestSchema, PasswordResetSchema, TokenDataSchema
 from schemas.user import UserRegisterSchema
 from services.authentication_service import get_auth_service, AuthenticationService
-from utils.configs.authentication import get_current_user, oauth2_bearer
+from configs.authentication import get_current_user, oauth2_bearer
 from utils.exceptions import raise_error
 
 router = APIRouter(

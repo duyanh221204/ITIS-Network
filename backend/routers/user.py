@@ -5,8 +5,8 @@ from models.notification import NotificationType
 from schemas.authentication import TokenDataSchema
 from schemas.user import UserPasswordUpdateSchema
 from services.user_service import get_user_service, UserService
-from utils.configs.authentication import get_current_user
-from utils.configs.websocket import websocket_manager
+from configs.authentication import get_current_user
+from configs.websocket import websocket_manager
 from utils.exceptions import raise_error
 
 router = APIRouter(

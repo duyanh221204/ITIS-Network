@@ -1,8 +1,6 @@
-import os
 import random
 from datetime import timedelta, datetime
 
-from dotenv import load_dotenv
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -11,13 +9,12 @@ from repositories.user_repository import get_user_repository, UserRepository
 from schemas.authentication import TokenSchema, OTPRequestSchema, PasswordResetSchema
 from schemas.base_response import BaseResponse
 from schemas.user import UserRegisterSchema
-from utils.configs.authentication import verify_password, create_access_token, verify_token, decode_token
-from utils.configs.mail import send_email
+from configs.authentication import verify_password, create_access_token, verify_token, decode_token
+from configs.mail import send_email
+from utils.constants import Constant
 from utils.exceptions import raise_error
 
-load_dotenv()
-
-ACCESS_TOKEN_EXPIRED_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRED_MINUTES")
+ACCESS_TOKEN_EXPIRED_MINUTES = Constant.ACCESS_TOKEN_EXPIRED_MINUTES
 
 
 def get_auth_service(

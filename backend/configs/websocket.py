@@ -2,7 +2,7 @@ from fastapi import WebSocket, Depends
 
 from repositories.invalidated_token_repository import get_invalidated_token_repository
 from schemas.authentication import TokenDataSchema
-from utils.configs.authentication import verify_token
+from configs.authentication import verify_token
 
 
 class ConnectionManager:

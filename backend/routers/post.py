@@ -6,8 +6,8 @@ from schemas.authentication import TokenDataSchema
 from schemas.comment import CommentBaseSchema
 from schemas.post import PostCreateSchema, PostUpdateSchema
 from services.post_service import get_post_service, PostService
-from utils.configs.authentication import get_current_user
-from utils.configs.websocket import websocket_manager
+from configs.authentication import get_current_user
+from configs.websocket import websocket_manager
 from utils.exceptions import raise_error
 
 router = APIRouter(

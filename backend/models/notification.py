@@ -3,7 +3,7 @@ import enum
 from sqlalchemy import Column, Integer, DateTime, Boolean, ForeignKey, Enum, func
 from sqlalchemy.orm import relationship
 
-from utils.configs.database import Base
+from configs.database import Base
 
 
 class NotificationType(str, enum.Enum):
