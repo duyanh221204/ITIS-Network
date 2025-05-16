@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
-from utils.configs.database import Base
+from configs.database import Base
 
 
 class User(Base):
@@ -14,11 +14,11 @@ class User(Base):
     avatar = Column(String(255))
     introduction = Column(String(255))
 
-    posts = relationship("Post", back_populates="author")
-    likes = relationship("Like", back_populates="liker")
-    comments = relationship("Comment", back_populates="author")
-    followers = relationship("Follow", foreign_keys="[Follow.followed_id]", back_populates="followed")
-    followings = relationship("Follow", foreign_keys="[Follow.follower_id]", back_populates="follower")
+    posts = relationship("Post", back_populates="author", passive_deletes=True)
+    likes = relationship("Like", back_populates="liker", passive_deletes=True)
+    comments = relationship("Comment", back_populates="author", passive_deletes=True)
+    followers = relationship("Follow", foreign_keys="[Follow.followed_id]", back_populates="followed", passive_deletes=True)
+    followings = relationship("Follow", foreign_keys="[Follow.follower_id]", back_populates="follower", passive_deletes=True)
     conversations_user1 = relationship("Conversation", foreign_keys="[Conversation.user1_id]", back_populates="user1")
     conversations_user2 = relationship("Conversation", foreign_keys="[Conversation.user2_id]", back_populates="user2")
     messages = relationship("Message", back_populates="sender")

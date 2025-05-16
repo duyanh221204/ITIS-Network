@@ -2,7 +2,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session, selectinload
 
 from models.notification import NotificationType, Notification
-from utils.configs.database import get_db
+from configs.database import get_db
 
 
 def get_notification_repository(db=Depends(get_db)):

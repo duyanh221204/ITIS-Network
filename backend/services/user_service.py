@@ -4,7 +4,7 @@ from repositories.user_repository import get_user_repository, UserRepository
 from schemas.base_response import BaseResponse
 from schemas.user import UserPasswordUpdateSchema, UserMiniSchema
 from services.notification_service import get_notification_service, NotificationService
-from utils.configs.authentication import verify_password
+from configs.authentication import verify_password
 from utils.exceptions import raise_error
 
 

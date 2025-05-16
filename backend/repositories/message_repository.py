@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from models import Message
 from schemas.chat import MessageCreateSchema
-from utils.configs.database import get_db
+from configs.database import get_db
 
 
 def get_message_repository(db=Depends(get_db)):

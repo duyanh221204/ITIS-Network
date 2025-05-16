@@ -41,6 +41,9 @@ ERROR_CODES = {
     4005: "Error retrieving unread conversations",
 
     5000: "Error sending OTP",
+
+    6000: "Error creating hashtag",
+    6001: "Error retrieving hashtags"
 }
 
 

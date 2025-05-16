@@ -2,35 +2,73 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from models import Post, Like, Comment, Follow
+from models import Post, Like, Comment, Follow, PostHashtag
+from repositories.hashtag_repository import HashtagRepository, get_hashtag_repository
 from schemas.comment import CommentBaseSchema
-from schemas.post import PostBaseSchema
-from utils.configs.database import get_db
+from schemas.post import PostCreateSchema, PostUpdateSchema
+from configs.database import get_db
 
 
-def get_post_repository(db=Depends(get_db)):
+def get_post_repository(db=Depends(get_db), hashtag_repository=Depends(get_hashtag_repository)):
     try:
-        yield PostRepository(db)
+        yield PostRepository(db, hashtag_repository)
     finally:
         pass
 
 
 class PostRepository:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, hashtag_repository: HashtagRepository):
         self.db = db
+        self.hashtag_repository = hashtag_repository
 
     def get_by_id(self, post_id: int) -> Post | None:
-        return self.db.query(Post).filter(Post.id == post_id).first()
+        return self.db.query(Post).filter(
+            Post.id == post_id
+        ).options(
+            selectinload(Post.author),
+            selectinload(Post.likes).selectinload(Like.liker),
+            selectinload(Post.comments).selectinload(Comment.author),
+            selectinload(Post.hashtags).selectinload(PostHashtag.hashtag)
+        ).first()
 
-    def create(self, data: PostBaseSchema, author_id: int) -> None:
-        new_post = Post(**data.model_dump(), author_id=author_id)
+    def create(self, data: PostCreateSchema, author_id: int) -> None:
+        new_post = Post(
+            content=data.content,
+            image=data.image,
+            author_id=author_id
+        )
+
+        hashtags = data.hashtags
+        if hashtags:
+            all_hashtags = self.hashtag_repository.get_or_create(hashtags)
+            new_post.hashtags = [
+                PostHashtag(hashtag_id=all_hashtags[hashtag].id) for hashtag in hashtags
+            ]
+
         self.db.add(new_post)
         self.db.commit()
         self.db.refresh(new_post)
 
-    def update(self, data: PostBaseSchema, post: Post) -> None:
+    def update(self, data: PostUpdateSchema, post: Post) -> None:
         post.content = data.content
         post.image = data.image
+
+        hashtags = data.hashtags
+        all_hashtags = self.hashtag_repository.get_or_create(hashtags)
+
+        current = {post_hashtag.hashtag.name: post_hashtag for post_hashtag in post.hashtags}
+        for name, post_hashtag in current.items():
+            if name not in hashtags:
+                post.hashtags.remove(post_hashtag)
+                self.db.delete(post_hashtag)
+                
+        for hashtag in hashtags:
+            if hashtag not in current:
+                post_hashtag = PostHashtag(
+                    post_id=post.id,
+                    hashtag_id=all_hashtags[hashtag].id
+                )
+                post.hashtags.append(post_hashtag)
 
         self.db.commit()
         self.db.refresh(post)
@@ -43,7 +81,8 @@ class PostRepository:
         return self.db.query(Post).options(
             selectinload(Post.author),
             selectinload(Post.likes).selectinload(Like.liker),
-            selectinload(Post.comments).selectinload(Comment.author)
+            selectinload(Post.comments).selectinload(Comment.author),
+            selectinload(Post.hashtags).selectinload(PostHashtag.hashtag)
         ).order_by(
             Post.created_at.desc()
         ).all()
@@ -55,7 +94,8 @@ class PostRepository:
         ).options(
             selectinload(Post.author),
             selectinload(Post.likes).selectinload(Like.liker),
-            selectinload(Post.comments).selectinload(Comment.author)
+            selectinload(Post.comments).selectinload(Comment.author),
+            selectinload(Post.hashtags).selectinload(PostHashtag.hashtag)
         ).order_by(
             Post.created_at.desc()
         ).all()
@@ -67,7 +107,8 @@ class PostRepository:
         ).options(
             selectinload(Post.author),
             selectinload(Post.likes).selectinload(Like.liker),
-            selectinload(Post.comments).selectinload(Comment.author)
+            selectinload(Post.comments).selectinload(Comment.author),
+            selectinload(Post.hashtags).selectinload(PostHashtag.hashtag)
         ).order_by(
             Post.created_at.desc()
         ).all()
@@ -78,7 +119,8 @@ class PostRepository:
         ).options(
             selectinload(Post.author),
             selectinload(Post.likes).selectinload(Like.liker),
-            selectinload(Post.comments).selectinload(Comment.author)
+            selectinload(Post.comments).selectinload(Comment.author),
+            selectinload(Post.hashtags).selectinload(PostHashtag.hashtag)
         ).order_by(
             Post.created_at.desc()
         ).all()

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
-from utils.configs.database import Base
+from configs.database import Base
 
 
 class Comment(Base):

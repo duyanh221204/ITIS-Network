@@ -1,4 +1,4 @@
-import utils.configs.cloudinary
+from configs import cloudinary
 
 from cloudinary.uploader import upload
 from fastapi import UploadFile

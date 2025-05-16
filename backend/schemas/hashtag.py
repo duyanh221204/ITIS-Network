@@ -1,12 +1,9 @@
 from pydantic import BaseModel
 
 
-class HashTagCreateSchema(BaseModel):
-    name: str
-
-
-class HashTagSchema(HashTagCreateSchema):
+class HashtagSchema(BaseModel):
     id: int
+    name: str
 
     model_config = {
         "from_attributes": True

@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from schemas.authentication import TokenDataSchema
 from schemas.user import UserInfoUpdateSchema
 from services.profile_service import get_profile_service, ProfileService
-from utils.configs.authentication import get_current_user
+from configs.authentication import get_current_user
 from utils.exceptions import raise_error
 
 router = APIRouter(

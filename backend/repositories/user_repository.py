@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 
 from models import User, Follow
 from schemas.user import UserRegisterSchema, UserInfoUpdateSchema
-from utils.configs.authentication import hash_password
-from utils.configs.database import get_db
+from configs.authentication import hash_password
+from configs.database import get_db
 
 
 def get_user_repository(db=Depends(get_db)):

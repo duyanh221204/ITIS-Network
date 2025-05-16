@@ -1,15 +1,12 @@
-import os
 import smtplib
 from email.mime.text import MIMEText
 
-from dotenv import load_dotenv
+from utils.constants import Constant
 
-load_dotenv()
-
-SMTP_HOST = os.getenv("SMTP_HOST")
-SMTP_PORT = os.getenv("SMTP_PORT")
-SMTP_USERNAME = os.getenv("SMTP_USERNAME")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
+SMTP_HOST = Constant.SMTP_HOST
+SMTP_PORT = Constant.SMTP_PORT
+SMTP_USERNAME = Constant.SMTP_USERNAME
+SMTP_PASSWORD = Constant.SMTP_PASSWORD
 
 
 def send_email(recipient: str, subject: str, body: str):

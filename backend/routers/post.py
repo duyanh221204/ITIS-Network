@@ -4,10 +4,10 @@ from fastapi.encoders import jsonable_encoder
 from models.notification import NotificationType
 from schemas.authentication import TokenDataSchema
 from schemas.comment import CommentBaseSchema
-from schemas.post import PostBaseSchema
+from schemas.post import PostCreateSchema, PostUpdateSchema
 from services.post_service import get_post_service, PostService
-from utils.configs.authentication import get_current_user
-from utils.configs.websocket import websocket_manager
+from configs.authentication import get_current_user
+from configs.websocket import websocket_manager
 from utils.exceptions import raise_error
 
 router = APIRouter(
@@ -61,7 +61,7 @@ async def get_posts_by_user(
 
 @router.post("/create")
 async def create_post(
-        data: PostBaseSchema,
+        data: PostCreateSchema,
         user: TokenDataSchema = Depends(get_current_user),
         post_service: PostService = Depends(get_post_service)
 ):
@@ -76,7 +76,7 @@ async def create_post(
 
 @router.put("/update/{post_id}")
 async def update_post_by_id(
-        data: PostBaseSchema,
+        data: PostUpdateSchema,
         post_id: int,
         user: TokenDataSchema = Depends(get_current_user),
         post_service: PostService = Depends(get_post_service)
