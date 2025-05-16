@@ -4,8 +4,9 @@ from models import Post
 from repositories.post_repository import get_post_repository, PostRepository
 from schemas.base_response import BaseResponse
 from schemas.comment import CommentInfoSchema, CommentBaseSchema
+from schemas.hashtag import HashtagSchema
 from schemas.like import LikeSchema
-from schemas.post import PostBaseSchema, PostInfoSchema
+from schemas.post import PostInfoSchema, PostCreateSchema, PostUpdateSchema
 from services.notification_service import get_notification_service, NotificationService
 from utils.exceptions import raise_error
 
@@ -25,14 +26,14 @@ class PostService:
         self.post_repository = post_repository
         self.notification_service = notification_service
 
-    def create_post(self, data: PostBaseSchema, user_id: int) -> BaseResponse:
+    def create_post(self, data: PostCreateSchema, user_id: int) -> BaseResponse:
         if data.content.strip() == "" and data.image == "":
             return raise_error(2001)
 
         self.post_repository.create(data, user_id)
         return BaseResponse(message="Create new post successfully")
     
-    def update_post_by_id(self, data: PostBaseSchema, post_id: int) -> BaseResponse:
+    def update_post_by_id(self, data: PostUpdateSchema, post_id: int) -> BaseResponse:
         if data.content.strip() == "" and data.image == "":
             return raise_error(2001)
 
@@ -70,11 +71,20 @@ class PostService:
                 )
                 for comment in post.comments
             ]
+            
+            hashtags = [
+                HashtagSchema(
+                    id=hashtag.id,
+                    name=hashtag.name
+                )
+                for hashtag in post.hashtags
+            ]
 
             data.append(PostInfoSchema(
                 id=post.id,
                 content=post.content,
                 image=post.image,
+                hashtags=hashtags,
                 author_id=post.author_id,
                 author_name=post.author.username,
                 author_avatar=post.author.avatar,

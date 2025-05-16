@@ -75,6 +75,7 @@ async def refresh_token(
         print ("Refresh token error:\n" + str(e))
         return raise_error(1013)
 
+
 @router.post("/logout")
 async def logout(
         token: str = Depends(oauth2_bearer),
