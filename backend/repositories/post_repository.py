@@ -1,6 +1,6 @@
 from fastapi import Depends
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, selectinload, Query
 
 from models import Post, Like, Comment, Follow, PostHashtag
 from repositories.hashtag_repository import HashtagRepository, get_hashtag_repository
@@ -21,14 +21,17 @@ class PostRepository:
         self.db = db
         self.hashtag_repository = hashtag_repository
 
-    def get_by_id(self, post_id: int) -> Post | None:
-        return self.db.query(Post).filter(
-            Post.id == post_id
-        ).options(
+    def base_query(self) -> Query[type[Post]]:
+        return self.db.query(Post).options(
             selectinload(Post.author),
             selectinload(Post.likes).selectinload(Like.liker),
             selectinload(Post.comments).selectinload(Comment.author),
             selectinload(Post.hashtags).selectinload(PostHashtag.hashtag)
+        )
+
+    def get_by_id(self, post_id: int) -> Post | None:
+        return self.base_query().filter(
+            Post.id == post_id
         ).first()
 
     def create(self, data: PostCreateSchema, author_id: int) -> None:
@@ -78,49 +81,29 @@ class PostRepository:
         self.db.commit()
 
     def get_all(self) -> list[type[Post]]:
-        return self.db.query(Post).options(
-            selectinload(Post.author),
-            selectinload(Post.likes).selectinload(Like.liker),
-            selectinload(Post.comments).selectinload(Comment.author),
-            selectinload(Post.hashtags).selectinload(PostHashtag.hashtag)
-        ).order_by(
+        return self.base_query().order_by(
             Post.created_at.desc()
         ).all()
 
     def get_by_followings(self, user_id: int) -> list[type[Post]]:
         followings = select(Follow.followed_id).where(Follow.follower_id == user_id)
-        return self.db.query(Post).filter(
+        return self.base_query().filter(
             Post.author_id.in_(followings)
-        ).options(
-            selectinload(Post.author),
-            selectinload(Post.likes).selectinload(Like.liker),
-            selectinload(Post.comments).selectinload(Comment.author),
-            selectinload(Post.hashtags).selectinload(PostHashtag.hashtag)
         ).order_by(
             Post.created_at.desc()
         ).all()
 
     def get_by_not_followings(self, user_id: int) -> list[type[Post]]:
         followings = select(Follow.followed_id).where(Follow.follower_id == user_id)
-        return self.db.query(Post).filter(
+        return self.base_query().filter(
             Post.author_id.notin_(followings)
-        ).options(
-            selectinload(Post.author),
-            selectinload(Post.likes).selectinload(Like.liker),
-            selectinload(Post.comments).selectinload(Comment.author),
-            selectinload(Post.hashtags).selectinload(PostHashtag.hashtag)
         ).order_by(
             Post.created_at.desc()
         ).all()
 
     def get_by_user_id(self, user_id: int) -> list[type[Post]]:
-        return self.db.query(Post).filter(
+        return self.base_query().filter(
             Post.author_id == user_id
-        ).options(
-            selectinload(Post.author),
-            selectinload(Post.likes).selectinload(Like.liker),
-            selectinload(Post.comments).selectinload(Comment.author),
-            selectinload(Post.hashtags).selectinload(PostHashtag.hashtag)
         ).order_by(
             Post.created_at.desc()
         ).all()

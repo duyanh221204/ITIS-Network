@@ -102,6 +102,10 @@ class PostService:
     def get_posts_by_followings(self, user_id: int) -> BaseResponse:
         posts = self.post_repository.get_by_followings(user_id)
         return self.get_posts(posts)
+    
+    def get_posts_by_not_followings(self, user_id: int) -> BaseResponse:
+        posts = self.post_repository.get_by_not_followings(user_id)
+        return self.get_posts(posts)
 
     def get_posts_by_user(self, user_id: int) -> BaseResponse:
         posts = self.post_repository.get_by_followings(user_id)

@@ -24,7 +24,6 @@ class ConnectionManager:
         for ws in self.active.get(key, []):
             await ws.send_json(message)
 
-
 websocket_manager = ConnectionManager()
 
 

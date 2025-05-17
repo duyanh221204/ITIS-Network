@@ -44,6 +44,20 @@ async def get_posts_by_followings(
         return raise_error(2005)
 
 
+@router.get("/not-followings")
+async def get_posts_by_not_followings(
+        user: TokenDataSchema = Depends(get_current_user),
+        post_service: PostService = Depends(get_post_service)
+):
+    try:
+        if user is None:
+            return raise_error(1005)
+        return post_service.get_posts_by_not_followings(user.id)
+    except Exception as e:
+        print ("Retrieving not following posts error:\n" + str(e))
+        return raise_error(2005)
+
+
 @router.get("/user/{user_id}")
 async def get_posts_by_user(
         user_id: int,
