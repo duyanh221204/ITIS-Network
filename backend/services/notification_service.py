@@ -35,7 +35,7 @@ class NotificationService:
                 type=noti.type,
                 post_id=noti.post_id,
                 is_read=noti.is_read,
-                created_at=noti.created_at.toisoformat(),
+                created_at=noti.created_at,
             )
             for noti in notis
         ]

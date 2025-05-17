@@ -121,8 +121,8 @@ class PostRepository:
 
     def unlike(self, liker_id: int, post_id: int) -> None:
         like_db = self.db.query(Like).filter(
-            liker_id == liker_id,
-            post_id == post_id
+            Like.liker_id == liker_id,
+            Like.post_id == post_id
         ).first()
 
         self.db.delete(like_db)

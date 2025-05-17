@@ -74,8 +74,8 @@ class UserRepository:
 
     def unfollow(self, follower_id: int, followed_id: int) -> None:
         follow_db = self.db.query(Follow).filter(
-            follower_id == follower_id,
-            followed_id == followed_id
+            Follow.follower_id == follower_id,
+            Follow.followed_id == followed_id
         ).first()
 
         self.db.delete(follow_db)
