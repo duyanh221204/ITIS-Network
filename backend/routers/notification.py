@@ -46,12 +46,12 @@ async def mark_as_read(
 @router.websocket("/ws")
 async def notifications_websocket(
         websocket: WebSocket,
-        token: str = Query(...),
+        _: str = Query(...),
+        user: TokenDataSchema = Depends(can_connect),
         noti_service: NotificationService = Depends(get_notification_service)
 ):
     await websocket.accept()
 
-    user = can_connect(token)
     if user is None:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return

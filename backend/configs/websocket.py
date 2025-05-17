@@ -1,6 +1,6 @@
 from fastapi import WebSocket, Depends
 
-from repositories.invalidated_token_repository import get_invalidated_token_repository
+from repositories.invalidated_token_repository import get_invalidated_token_repository, InvalidatedTokenRepository
 from schemas.authentication import TokenDataSchema
 from configs.authentication import verify_token
 
@@ -24,9 +24,11 @@ class ConnectionManager:
         for ws in self.active.get(key, []):
             await ws.send_json(message)
 
-
 websocket_manager = ConnectionManager()
 
 
-def can_connect(token: str) -> TokenDataSchema | None:
-    return verify_token(token, invalidated_token_repository=Depends(get_invalidated_token_repository))
+def can_connect(
+        token: str,
+        invalidated_token_repository: InvalidatedTokenRepository = Depends(get_invalidated_token_repository)
+) -> TokenDataSchema | None:
+    return verify_token(token, invalidated_token_repository)
