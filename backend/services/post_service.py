@@ -74,10 +74,10 @@ class PostService:
             
             hashtags = [
                 HashtagSchema(
-                    id=hashtag.id,
-                    name=hashtag.name
+                    id=post_hashtag.hashtag.id,
+                    name=post_hashtag.hashtag.name
                 )
-                for hashtag in post.hashtags
+                for post_hashtag in post.hashtags
             ]
 
             data.append(PostInfoSchema(

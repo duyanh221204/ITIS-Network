@@ -15,6 +15,9 @@ def send_email(recipient: str, subject: str, body: str):
     msg["From"] = SMTP_USERNAME
     msg["To"] = recipient
 
-    with smtplib.SMTP_SSL(SMTP_HOST, int(SMTP_PORT)) as mail_server:
+    with smtplib.SMTP(SMTP_HOST, int(SMTP_PORT)) as mail_server:
+        mail_server.ehlo()
+        mail_server.starttls()
+        mail_server.ehlo()
         mail_server.login(SMTP_USERNAME, SMTP_PASSWORD)
         mail_server.sendmail(SMTP_USERNAME, [recipient], msg.as_string())
