@@ -73,6 +73,21 @@ async def get_posts_by_user(
         return raise_error(2005)
 
 
+@router.get("/hashtag/{hashtag_name")
+async def get_posts_by_hashtag(
+        hashtag_name: str,
+        user: TokenDataSchema = Depends(get_current_user),
+        post_service: PostService = Depends(get_post_service)
+):
+    try:
+        if user is None:
+            return raise_error(1005)
+        return post_service.get_posts_by_hashtag(hashtag_name)
+    except Exception as e:
+        print ("Retrieving posts by hashtag error:\n" + str(e))
+        return raise_error(2005)
+
+
 @router.post("/create")
 async def create_post(
         data: PostCreateSchema,
@@ -130,8 +145,8 @@ async def like_post(
             return raise_error(1005)
 
         response = post_service.like_post(user.id, post_id)
-        if response.status == "ok":
-            receiver_id = response.data
+        if response.status == "ok" and response.data.post_author_id != user.id:
+            receiver_id = response.data.post_author_id
             noti = post_service.notification_service.notify(
                 user.id,
                 receiver_id,
@@ -186,12 +201,12 @@ async def create_comment(
             return raise_error(1005)
 
         response = post_service.create_comment(data, user.id)
-        if response.status == "ok":
-            receiver_id = response.data
+        if response.status == "ok" and response.data.post_author_id != user.id:
+            receiver_id = response.data.post_author_id
             noti = post_service.notification_service.notify(
                 user.id,
                 receiver_id,
-                NotificationType.LIKE,
+                NotificationType.COMMENT,
                 data.post_id
             )
 

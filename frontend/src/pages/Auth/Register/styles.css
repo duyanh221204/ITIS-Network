@@ -1,0 +1,76 @@
+.auth-container
+{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background-color);
+}
+
+.auth-box
+{
+    background-color: white;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-box h2
+{
+    margin-bottom: 24px;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+.auth-box form
+{
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-footer
+{
+    margin-top: 16px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.file-input-container
+{
+    margin-bottom: 16px;
+}
+
+.file-input-label
+{
+    display: inline-block;
+    background-color: var(--hover-color);
+    color: var(--primary-color);
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.file-input
+{
+    display: none;
+}
+
+.file-name
+{
+    margin-left: 8px;
+    font-size: 12px;
+    color: var(--secondary-color);
+}
+
+.auth-logo
+{
+    display: block;
+    margin: 0 auto 18px auto;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+}

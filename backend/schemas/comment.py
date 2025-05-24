@@ -11,6 +11,7 @@ class CommentInfoSchema(CommentBaseSchema):
     author_id: int
     author_name: str
     author_avatar: str | None = None
+    post_author_id: int
 
     model_config = {
         "from_attributes": True

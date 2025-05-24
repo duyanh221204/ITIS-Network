@@ -8,7 +8,15 @@ const CreatePost = () =>
 
     const handlePostCreated = () =>
     {
-        navigate("/");
+        const userId = localStorage.getItem("userId");
+        if (userId)
+        {
+            navigate(`/profile/${userId}`);
+        }
+        else
+        {
+            navigate("/");
+        }
     };
 
     return (

@@ -65,12 +65,12 @@ const Settings = ({page}) =>
     {
         const {name, value} = e.target;
         setProfileData
-        (
-            {
-                ...profileData,
-                [name]: value
-            }
-        );
+            (
+                {
+                    ...profileData,
+                    [name]: value
+                }
+            );
     };
 
     const handleFileChange = (e) =>
@@ -85,12 +85,12 @@ const Settings = ({page}) =>
             };
             reader.readAsDataURL(file);
             setProfileData
-            (
-                {
-                    ...profileData,
-                    avatar: file
-                }
-            );
+                (
+                    {
+                        ...profileData,
+                        avatar: file
+                    }
+                );
         }
     };
 
@@ -98,12 +98,12 @@ const Settings = ({page}) =>
     {
         const {name, value} = e.target;
         setPasswordData
-        (
-            {
-                ...passwordData,
-                [name]: value
-            }
-        );
+            (
+                {
+                    ...passwordData,
+                    [name]: value
+                }
+            );
     };
 
     const handleUpdateProfile = async (e) =>
@@ -122,13 +122,11 @@ const Settings = ({page}) =>
                 avatarUrl = imageResponse.data;
             }
 
-            const updateData =
-                {
-                    username: profileData.username,
-                    email: profileData.email,
-                    introduction: profileData.introduction,
-                    avatar: avatarUrl
-                };
+            const updateData = {
+                username: profileData.username,
+                introduction: profileData.introduction,
+                avatar: avatarUrl
+            };
             const response = await updateUserInfo(updateData);
 
             if (response.status === "ok")
@@ -165,21 +163,21 @@ const Settings = ({page}) =>
         try
         {
             const response = await updatePassword
-            (
-                {
-                current_password: passwordData.current_password,
-                new_password: passwordData.new_password
-                }
-            );
+                (
+                    {
+                        current_password: passwordData.current_password,
+                        new_password: passwordData.new_password
+                    }
+                );
 
             if (response.status === "ok")
             {
                 setPasswordSuccess("Password updated successfully");
                 setPasswordData(
                     {
-                    current_password: "",
-                    new_password: "",
-                    confirm_password: ""
+                        current_password: "",
+                        new_password: "",
+                        confirm_password: ""
                     }
                 );
             }
@@ -201,7 +199,7 @@ const Settings = ({page}) =>
             <h1 className="page-title">Account Settings</h1>
             <div className="settings-nav">
                 <button className={page === "profile-info" ? "active" : ""} onClick={() => navigate("/settings/profile-info")}>Profile Information</button>
-                <button className={page === "change-password" ? "active" : "" } onClick={ () => navigate("/settings/change-password")}>Change Password</button>
+                <button className={page === "change-password" ? "active" : ""} onClick={() => navigate("/settings/change-password")}>Change Password</button>
             </div>
             {
                 loading ?
@@ -237,8 +235,8 @@ const Settings = ({page}) =>
                                                     id="email"
                                                     name="email"
                                                     className="input-field"
-                                                    value={ profileData.email }
-                                                    onChange={handleProfileChange}
+                                                    value={profileData.email}
+                                                    disabled
                                                     required
                                                 />
                                             </div>

@@ -7,6 +7,7 @@ class LikeSchema(BaseModel):
     liker_name: str
     liker_avatar: str | None = None
     post_id: int
+    post_author_id: int
 
     model_config = {
         "from_attributes": True

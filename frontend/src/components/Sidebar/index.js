@@ -43,7 +43,7 @@ const Sidebar = () =>
                             <li className={isActive("/discover") ? "active" : ""}>
                                 <Link to="/discover">
                                     <i className="sidebar-icon">🔍</i>
-                                    <span>Discover People</span>
+                                    <span>Discover</span>
                                 </Link>
                             </li>
                             <li className={isActive("/create-post") ? "active" : ""}>

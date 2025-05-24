@@ -2,7 +2,7 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload, Query
 
-from models import Post, Like, Comment, Follow, PostHashtag
+from models import Post, Like, Comment, Follow, PostHashtag, Hashtag
 from repositories.hashtag_repository import HashtagRepository, get_hashtag_repository
 from schemas.comment import CommentBaseSchema
 from schemas.post import PostCreateSchema, PostUpdateSchema
@@ -104,6 +104,19 @@ class PostRepository:
     def get_by_user_id(self, user_id: int) -> list[type[Post]]:
         return self.base_query().filter(
             Post.author_id == user_id
+        ).order_by(
+            Post.created_at.desc()
+        ).all()
+
+    def get_by_hashtag(self, hashtag: str) -> list[type[Post]]:
+        return self.base_query().join(
+            PostHashtag,
+            PostHashtag.post_id == Post.id,
+        ).join(
+            Hashtag,
+            Hashtag.id == PostHashtag.hashtag_id
+        ).filter(
+            Hashtag.name == hashtag
         ).order_by(
             Post.created_at.desc()
         ).all()

@@ -9,6 +9,10 @@ import Profile from "../../pages/Profile";
 import Settings from "../../pages/Settings";
 import Discover from "../../pages/Discover";
 import Chat from "../../pages/Chat";
+import EditPost from "../../pages/EditPost";
+import PostDetail from "../../pages/PostDetail";
+import Notifications from "../../pages/Notifications";
+import HashtagPosts from "../../pages/HashtagPosts";
 import "./styles.css";
 
 const MainLayout = () =>
@@ -23,16 +27,16 @@ const MainLayout = () =>
                 const base64Url = token.split(".")[1];
                 const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
                 const jsonPayload = decodeURIComponent
-                (
-                    window.atob(base64).split("").map(c =>
-                    {
-                        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-                    }).join("")
-                );
+                    (
+                        window.atob(base64).split("").map(c =>
+                        {
+                            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+                        }).join("")
+                    );
 
-                const {id} = JSON.parse(jsonPayload);
-                if (id)
-                    localStorage.setItem("userId", id);
+                const {sub} = JSON.parse(jsonPayload);
+                if (sub)
+                    localStorage.setItem("userId", sub);
             }
         }
         catch (error)
@@ -58,6 +62,10 @@ const MainLayout = () =>
                         <Route path="/discover" element={<Discover />} />
                         <Route path="/chat" element={<Chat />} />
                         <Route path="/chat/:conversationId" element={<Chat />} />
+                        <Route path="/edit-post/:postId" element={<EditPost />} />
+                        <Route path="/post/:postId" element={<PostDetail />} />
+                        <Route path="/hashtag/:hashtag" element={<HashtagPosts />} />
+                        <Route path="/notifications" element={<Notifications />} />
                         <Route path="*" element={<Navigate to="/" />} />
                     </Routes>
                 </main>

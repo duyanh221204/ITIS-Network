@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register, uploadImage } from "../../../services/authService";
-import "../styles.css";
+import "./styles.css";
 
 const Register = () =>
 {
@@ -84,27 +84,30 @@ const Register = () =>
             }
 
             const response = await register
-            (
-                {
-                    username: formData.username,
-                    email: formData.email,
-                    password: formData.password,
-                    avatar: avatarUrl,
-                    introduction: formData.introduction
-                }
-            );
-            if (response && response.status === "ok")
-                navigate("/verify-otp",
+                (
                     {
-                        state:
-                            {
-                                email: formData.email,
-                                type: "register"
-                            }
+                        username: formData.username,
+                        email: formData.email,
+                        password: formData.password,
+                        avatar: avatarUrl,
+                        introduction: formData.introduction
                     }
                 );
+            if (response && response.status === "ok")
+            {
+                navigate("/verify-otp",
+                    {
+                        state: {
+                            email: formData.email,
+                            type: "register"
+                        }
+                    }
+                );
+            }
             else
+            {
                 setError(response?.message || "Registration failed");
+            }
         }
         catch (error)
         {
