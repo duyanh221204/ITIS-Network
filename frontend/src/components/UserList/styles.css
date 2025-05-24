@@ -29,6 +29,7 @@
     justify-content: space-between;
     padding: 8px 0;
     border-bottom: 1px solid var(--border-color);
+    border-bottom: none !important;
 }
 
 .user-item:last-child
@@ -80,4 +81,60 @@
     color: var(--secondary-color);
     text-align: center;
     padding: 12px 0;
+}
+
+.user-actions
+{
+    display: flex;
+    gap: 8px;
+}
+
+.message-button
+{
+    background: none;
+    color: var(--primary-color);
+    border: none;
+    border-radius: 0;
+    padding: 0 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.18s;
+    box-shadow: none;
+    outline: none;
+    min-width: unset;
+    min-height: unset;
+    height: auto;
+    display: inline;
+}
+
+.message-button:hover
+{
+    color: #1976d2;
+    background: none;
+    border: none;
+}
+
+.user-card
+{
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 6px rgba(24, 119, 242, 0.08);
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: none !important;
+    transition: box-shadow 0.18s;
+}
+
+.user-card:last-child
+{
+    margin-bottom: 0;
+}
+
+.user-card:hover
+{
+    box-shadow: 0 4px 18px rgba(24, 119, 242, 0.13);
 }

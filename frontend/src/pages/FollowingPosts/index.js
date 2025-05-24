@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { getFollowingPosts } from "../../services/postService";
 import Post from "../../components/Post";
-import CreatePostForm from "../../components/CreatePostForm";
 import "./styles.css";
 
 const FollowingPosts = () =>
@@ -36,17 +35,9 @@ const FollowingPosts = () =>
         }
     };
 
-    const handlePostCreated = () =>
-    {
-        fetchPosts();
-    };
-
     return (
         <div className="following-posts-page">
             <h1 className="page-title">Following Posts</h1>
-
-            <CreatePostForm onPostCreated={handlePostCreated} />
-
             {
                 loading ?
                     (
@@ -63,29 +54,20 @@ const FollowingPosts = () =>
                                 </button>
                             </div>
                         ) :
-                        (
-                            <>
-                                {
-                                    posts.length > 0 ?
-                                        (
-                                            <div className="posts-container">
-                                                {
-                                                    posts.map(post =>
-                                                        (
-                                                            <Post key={post.id} post={post} refreshPosts={fetchPosts} />
-                                                        )
-                                                    )
-                                                }
-                                            </div>
-                                        ) :
-                                        (
-                                            <div className="empty-posts">
-                                                <p>No posts from people you follow. Follow other users to see their posts here!</p>
-                                            </div>
-                                        )
-                                }
-                            </>
-                        )
+                        posts.length > 0 ?
+                            (
+                                <div className="posts-container">
+                                    {
+                                        posts.map(post => (
+                                            <Post key={post.id} post={post} refreshPosts={fetchPosts} />
+                                        ))
+                                    }
+                                </div>
+                            ) : (
+                                <div className="empty-posts">
+                                    <p>No posts yet.</p>
+                                </div>
+                            )
             }
         </div>
     );

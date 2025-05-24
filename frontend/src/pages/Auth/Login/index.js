@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../../../services/authService";
-import "../styles.css";
+import "./styles.css";
 
-const Login = ({setIsAuthenticated}) =>
+const Login = ({ setIsAuthenticated }) =>
 {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -46,6 +46,7 @@ const Login = ({setIsAuthenticated}) =>
             <div className="auth-box">
                 <img src="/logo.jfif" alt="Logo" className="auth-logo" />
                 <h2>Login</h2>
+                <p className="auth-note">Login to share your moments and connect with people!</p>
                 <form onSubmit={handleSubmit}>
                     <input
                         type="text"

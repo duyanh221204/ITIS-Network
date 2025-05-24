@@ -47,3 +47,15 @@ export const deleteComment = async (commentId) =>
     const response = await api.delete(`/posts/delete-comment/${commentId}`);
     return response.data;
 };
+
+export const updatePost = async (postId, postData) =>
+{
+    const response = await api.put(`/posts/update/${postId}`, postData);
+    return response.data;
+};
+
+export const deletePost = async (postId) =>
+{
+    const response = await api.delete(`/posts/delete/${postId}`);
+    return response.data;
+};

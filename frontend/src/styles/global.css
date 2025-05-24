@@ -34,6 +34,8 @@ body
 
 .btn
 {
+    display: flex;
+    justify-content: center;
     padding: 8px 16px;
     border: none;
     border-radius: 4px;

@@ -18,7 +18,7 @@ const Profile = () =>
     const [showFollowers, setShowFollowers] = useState(false);
     const [showFollowing, setShowFollowing] = useState(false);
     const [isCurrentUser, setIsCurrentUser] = useState(false);
-    const currentUserId = localStorage.getItem("userId");
+    const currentUserId = (localStorage.getItem("userId") || "").toString();
 
     useEffect(() =>
     {
@@ -32,9 +32,13 @@ const Profile = () =>
         setLoading(true);
         try
         {
+            let profileId = userId;
+            if (!profileId || profileId === "me")
+                profileId = currentUserId;
+
             setIsCurrentUser(userId === "me" || userId === currentUserId);
 
-            const profileResponse = await getUserProfile(userId === "me" ? currentUserId : userId);
+            const profileResponse = await getUserProfile(profileId);
             if (profileResponse.status === "ok" && profileResponse.data)
             {
                 setProfile(profileResponse.data);
@@ -48,7 +52,7 @@ const Profile = () =>
         }
         catch (error)
         {
-            setError("Error loading profile");
+            setError("Error loading profile: " + (error.message || error));
             throw error;
         }
         finally
@@ -214,7 +218,7 @@ const Profile = () =>
                                                     <div className="profile-actions">
                                                         <button
                                                             className="btn btn-primary"
-                                                        onClick={() => navigate("/settings")}
+                                                            onClick={() => navigate("/settings")}
                                                         >
                                                             Edit Profile
                                                         </button>
@@ -232,10 +236,9 @@ const Profile = () =>
                                                     <div className="posts-container">
                                                         {
                                                             posts.map(post =>
-                                                                (
-                                                                    <Post key={post.id} post={post} refreshPosts={fetchProfileAndPosts} />
-                                                                )
-                                                            )
+                                                            (
+                                                                <Post key={post.id} post={post} refreshPosts={fetchProfileAndPosts} />
+                                                            ))
                                                         }
                                                     </div>
                                                 ) :
@@ -287,7 +290,8 @@ const Profile = () =>
                                         )
                                     }
                                 </div>
-                            ) : null
+                            ) :
+                            null
             }
         </div>
     );
