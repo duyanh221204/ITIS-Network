@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket, Query, Depends, status
+from fastapi import APIRouter, WebSocket, Depends
 from fastapi.encoders import jsonable_encoder
 
 from schemas.authentication import TokenDataSchema
@@ -135,14 +135,9 @@ async def unread_count(
 async def chat_websocket(
         conversation_id: int,
         websocket: WebSocket,
-        _: str = Query(...),
-        user: TokenDataSchema = Depends(can_connect)
+        _: TokenDataSchema = Depends(can_connect)
 ):
     await websocket.accept()
-
-    if user is None:
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-        return
 
     websocket_manager.connect(conversation_id, websocket)
     try:

@@ -1,4 +1,4 @@
-from fastapi import WebSocket, Depends
+from fastapi import WebSocket, Depends, Query, WebSocketException, status
 
 from repositories.invalidated_token_repository import get_invalidated_token_repository, InvalidatedTokenRepository
 from schemas.authentication import TokenDataSchema
@@ -28,7 +28,11 @@ websocket_manager = ConnectionManager()
 
 
 def can_connect(
-        token: str,
+        token: str = Query(...),
         invalidated_token_repository: InvalidatedTokenRepository = Depends(get_invalidated_token_repository)
-) -> TokenDataSchema | None:
-    return verify_token(token, invalidated_token_repository)
+) -> TokenDataSchema | WebSocketException:
+    user = verify_token(token, invalidated_token_repository)
+
+    if user is None:
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+    return user

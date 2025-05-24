@@ -55,7 +55,8 @@ class PostService:
                     liker_id=like.liker_id,
                     liker_name=like.liker.username,
                     liker_avatar=like.liker.avatar,
-                    post_id=post.id
+                    post_id=post.id,
+                    post_author_id=post.author_id
                 )
                 for like in post.likes
             ]
@@ -67,7 +68,8 @@ class PostService:
                     author_id=comment.author_id,
                     author_name=comment.author.username,
                     author_avatar=comment.author.avatar,
-                    post_id=post.id
+                    post_id=post.id,
+                    post_author_id=post.author_id
                 )
                 for comment in post.comments
             ]
@@ -111,9 +113,21 @@ class PostService:
         posts = self.post_repository.get_by_user_id(user_id)
         return self.get_posts(posts)
 
+    def get_posts_by_hashtag(self, hashtag: str) -> BaseResponse:
+        posts = self.post_repository.get_by_hashtag(hashtag)
+        return self.get_posts(posts)
+
     def like_post(self, liker_id: int, post_id: int) -> BaseResponse:
         new_like = self.post_repository.like(liker_id, post_id)
-        return BaseResponse(message="Like post successfully", data=new_like.post.author_id)
+        data = LikeSchema(
+            id=new_like.id,
+            liker_id=new_like.liker_id,
+            liker_name=new_like.liker.username,
+            liker_avatar=new_like.liker.avatar,
+            post_id=new_like.post_id,
+            post_author_id=new_like.post.author_id
+        )
+        return BaseResponse(message="Like post successfully", data=data)
 
     def unlike_post(self, liker_id: int, post_id: int) -> BaseResponse:
         self.post_repository.unlike(liker_id, post_id)
@@ -124,7 +138,16 @@ class PostService:
             return raise_error(2006)
 
         new_comment = self.post_repository.comment(data, author_id)
-        return BaseResponse(message="Create comment successfully", data=new_comment.post.author_id)
+        data = CommentInfoSchema(
+            id=new_comment.id,
+            content=new_comment.content,
+            author_id=new_comment.author_id,
+            author_name=new_comment.author.username,
+            author_avatar=new_comment.author.avatar,
+            post_id=new_comment.post_id,
+            post_author_id=new_comment.post.author_id
+        )
+        return BaseResponse(message="Create comment successfully", data=data)
 
     def delete_comment(self, comment_id: int, author_id: int) -> BaseResponse:
         self.post_repository.delete_comment(comment_id, author_id)

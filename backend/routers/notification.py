@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, WebSocket, Query, status
+from fastapi import APIRouter, Depends, WebSocket
 from fastapi.encoders import jsonable_encoder
 
 from schemas.authentication import TokenDataSchema
@@ -46,15 +46,10 @@ async def mark_as_read(
 @router.websocket("/ws")
 async def notifications_websocket(
         websocket: WebSocket,
-        _: str = Query(...),
         user: TokenDataSchema = Depends(can_connect),
         noti_service: NotificationService = Depends(get_notification_service)
 ):
     await websocket.accept()
-
-    if user is None:
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
-        return
 
     user_id = user.id
     websocket_manager.connect(user_id, websocket)
