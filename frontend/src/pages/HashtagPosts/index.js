@@ -6,7 +6,7 @@ import "../Home/styles.css";
 
 const HashtagPosts = () =>
 {
-    const { hashtag } = useParams();
+    const {hashtag} = useParams();
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -30,15 +30,21 @@ const HashtagPosts = () =>
 
     return (
         <div className="news-feed-page">
-            <h1 className="page-title"># { hashtag }</h1>
-            <div className="news-feed-container" style={ { maxWidth: 600, margin: "32px auto" } }>
-                { loading ? (
-                    <div className="loading"><div className="loading-spinner"></div></div>
-                ) : posts.length === 0 ? (
-                    <div className="empty-message">No posts found for this hashtag.</div>
-                ) : (
-                    posts.map(post => <Post key={ post.id } post={ post } refreshPosts={ null } />)
-                ) }
+            <h1 className="page-title">#{hashtag}</h1>
+            <div className="news-feed-container" style={{maxWidth: 600, margin: "32px auto"}}>
+                {
+                    loading ?
+                        (
+                            <div className="loading"><div className="loading-spinner"></div></div>
+                        ) :
+                        posts.length === 0 ?
+                            (
+                                <div className="empty-message">No posts found for this hashtag.</div>
+                            ) :
+                            (
+                                posts.map(post => <Post key={post.id} post={post} refreshPosts={null} />)
+                            )
+                }
             </div>
         </div>
     );

@@ -13,7 +13,6 @@ const EditPost = () =>
 
     useEffect(() =>
     {
-        // Giả sử không có API getPostById, lấy từ getAllPosts
         const fetchPost = async () =>
         {
             setLoading(true);
@@ -28,8 +27,10 @@ const EditPost = () =>
         fetchPost();
     }, [postId]);
 
-    if (loading) return <div className="loading"><div className="loading-spinner"></div></div>;
-    if (!post) return <div className="error-message">Post not found.</div>;
+    if (loading)
+        return <div className="loading"><div className="loading-spinner"></div></div>;
+    if (!post)
+        return <div className="error-message">Post not found.</div>;
 
     return (
         <div className="create-post-page">
@@ -37,11 +38,11 @@ const EditPost = () =>
             <div className="create-post-container">
                 <CreatePostForm
                     mode="edit"
-                    initialContent={ post.content }
-                    initialImage={ post.image }
-                    initialHashtags={ post.hashtags ? post.hashtags.map(h => `#${ h.name }`) : [] }
-                    postId={ post.id }
-                    onPostCreated={ () => navigate(`/profile/${ post.author_id }`) }
+                    initialContent={post.content}
+                    initialImage={post.image}
+                    initialHashtags={post.hashtags ? post.hashtags.map(h => `#${h.name}`) : []}
+                    postId={post.id}
+                    onPostCreated={() => navigate(`/profile/${post.author_id}`)}
                 />
             </div>
         </div>

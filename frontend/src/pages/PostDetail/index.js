@@ -6,7 +6,7 @@ import "../Home/styles.css";
 
 const PostDetail = () =>
 {
-    const { postId } = useParams();
+    const {postId} = useParams();
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -26,13 +26,15 @@ const PostDetail = () =>
         fetchPost();
     }, [postId]);
 
-    if (loading) return <div className="loading"><div className="loading-spinner"></div></div>;
-    if (!post) return <div className="error-message">Post not found.</div>;
+    if (loading)
+        return <div className="loading"><div className="loading-spinner"></div></div>;
+    if (!post)
+        return <div className="error-message">Post not found.</div>;
 
     return (
         <div className="news-feed-page">
-            <div className="news-feed-container" style={ { maxWidth: 600, margin: "32px auto" } }>
-                <Post post={ post } refreshPosts={ null } />
+            <div className="news-feed-container" style={{maxWidth: 600, margin: "32px auto"}}>
+                <Post post={post} refreshPosts={null} />
             </div>
         </div>
     );
