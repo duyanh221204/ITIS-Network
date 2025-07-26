@@ -64,13 +64,11 @@ async def notifications_websocket(
                     "data": jsonable_encoder(response.data)
                 }
             )
-    finally:
-        db.close()
 
-    try:
-        while True:
-            await websocket.receive_text()
+            while True:
+                await websocket.receive_text()
     except Exception as e:
         print ("Websocket exception:\n" + str(e))
     finally:
+        db.close()
         websocket_manager.disconnect(user_id, websocket)
