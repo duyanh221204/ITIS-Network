@@ -4,7 +4,6 @@ from fastapi.encoders import jsonable_encoder
 from schemas.authentication import TokenDataSchema
 from services.notification_service import get_notification_service, NotificationService
 from configs.authentication import get_current_user
-from configs.database import SessionLocal
 from configs.websocket import websocket_manager, can_connect
 from utils.exceptions import raise_error
 
@@ -53,7 +52,6 @@ async def notifications_websocket(
 
     user_id = user.id
     websocket_manager.connect(user_id, websocket)
-    db = SessionLocal()
 
     try:
         response = noti_service.get_unread_notifications(user_id)
@@ -70,5 +68,4 @@ async def notifications_websocket(
     except Exception as e:
         print ("Websocket exception:\n" + str(e))
     finally:
-        db.close()
         websocket_manager.disconnect(user_id, websocket)
